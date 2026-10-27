@@ -10,79 +10,79 @@ export interface HeadlineItem {
 export const BASELINE_HEADLINES: HeadlineItem[] = [
   {
     id: 'base-1',
-    tag: 'ACTIVE AY 2025-26',
-    tagColor: '#00F5D4',
-    title: 'National Scholarship Portal (NSP / PM-USP)',
-    detail: 'Central OTR Registration Live on scholarships.gov.in (Full Tuition Fee Reimbursement + Maintenance Allowance for SC/ST/OBC)',
-    portal: 'scholarships.gov.in'
+    tag: 'UTTAR PRADESH',
+    tagColor: '#FF9933',
+    title: 'UP Post-Matric & Pre-Matric Scholarship',
+    detail: 'Online registration and verification currently active for eligible students on scholarship.up.gov.in.',
+    portal: 'scholarship.up.gov.in'
   },
   {
     id: 'base-2',
-    tag: 'ACTIVE // NO EXPIRY',
-    tagColor: '#FFE600',
-    title: 'Ayushman Bharat PM-JAY',
-    detail: '₹5,00,000/yr Free Cashless Secondary & Tertiary Hospitalization across 29,000+ Empanelled Hospitals (Instant Golden Card eKYC)',
-    portal: 'beneficiary.nha.gov.in'
-  },
-  {
-    id: 'base-3',
-    tag: 'ACTIVE AY 2025-26',
-    tagColor: '#00F5D4',
-    title: 'AICTE Pragati & Saksham Schemes',
-    detail: '₹50,000/annum Direct Financial Assistance for Girls and Specially-Abled in Technical Degree/Diploma',
+    tag: 'CENTRAL SCHOLARSHIPS',
+    tagColor: '#38BDF8',
+    title: 'National Scholarship Portal (NSP)',
+    detail: 'One-Time Registration (OTR) is open for academic session 2025–26 across central ministry schemes.',
     portal: 'scholarships.gov.in'
   },
   {
+    id: 'base-3',
+    tag: 'HEALTHCARE',
+    tagColor: '#10B981',
+    title: 'Ayushman Bharat (PM-JAY)',
+    detail: 'Free treatment cover up to ₹5 Lakh/year per family; e-KYC and golden card downloads active on beneficiary.nha.gov.in.',
+    portal: 'beneficiary.nha.gov.in'
+  },
+  {
     id: 'base-4',
-    tag: 'ACTIVE 2025–2026',
-    tagColor: '#FFE600',
+    tag: 'AGRICULTURE',
+    tagColor: '#F59E0B',
     title: 'PM-KISAN Samman Nidhi',
-    detail: 'Guaranteed ₹6,000/yr Direct Benefit Transfer (DBT) in 3 equal tranches for all landholding farmers',
+    detail: '₹6,000 annual direct income support released in three installments for verified landholding farmers.',
     portal: 'pmkisan.gov.in'
   },
   {
     id: 'base-5',
-    tag: 'ACTIVE THROUGH 2028',
-    tagColor: '#00F5D4',
-    title: 'PM Garib Kalyan Anna Yojana (NFSA)',
-    detail: '5kg Free Monthly Foodgrains Extended Nationwide under One Nation One Ration Card',
-    portal: 'nfsa.gov.in'
-  },
-  {
-    id: 'base-6',
-    tag: 'ACTIVE 2025–2026',
-    tagColor: '#FFE600',
-    title: 'Pradhan Mantri Mudra Yojana (PMMY)',
-    detail: 'Collateral-Free Business Loans with Newly Enhanced ₹20 Lakh Limit under Tarun Plus',
-    portal: 'udyamimitra.in'
-  },
-  {
-    id: 'base-7',
-    tag: 'ACTIVE AY 2025-26',
-    tagColor: '#00F5D4',
-    title: 'Central Sector Scheme (CSSS)',
-    detail: 'Direct Merit Scholarships (₹12,000 - ₹20,000/yr) for College & University Undergraduates & Postgraduates',
+    tag: 'HIGHER EDUCATION',
+    tagColor: '#A855F7',
+    title: 'AICTE Pragati Scholarship for Girls',
+    detail: '₹50,000 annual assistance for female students pursuing recognized technical degree and diploma courses.',
     portal: 'scholarships.gov.in'
   },
   {
+    id: 'base-6',
+    tag: 'FOOD & RATION',
+    tagColor: '#10B981',
+    title: 'PM Garib Kalyan Anna Yojana',
+    detail: 'Free monthly foodgrain entitlement continuing nationwide under the National Food Security Act.',
+    portal: 'nfsa.gov.in'
+  },
+  {
+    id: 'base-7',
+    tag: 'MSME & BUSINESS',
+    tagColor: '#38BDF8',
+    title: 'PM Mudra Yojana (Tarun Plus)',
+    detail: 'Collateral-free business credit limit increased to ₹20 Lakh for growing micro-enterprises and small shops.',
+    portal: 'udyamimitra.in'
+  },
+  {
     id: 'base-8',
-    tag: 'ACTIVE 2025–2026',
-    tagColor: '#FFE600',
-    title: 'PMAY 2.0 Housing Subsidy',
-    detail: 'Direct Financial Assistance of ₹1.2L to ₹2.67L for Construction of 3 Crore New Pucca Houses',
+    tag: 'HOUSING',
+    tagColor: '#FF9933',
+    title: 'PM Awas Yojana (PMAY 2.0)',
+    detail: 'Financial subsidies and interest relief available for constructing permanent pucca homes in urban and rural areas.',
     portal: 'pmaymis.gov.in'
   },
   {
     id: 'base-9',
-    tag: 'ACTIVE KHARIF & RABI',
-    tagColor: '#00F5D4',
-    title: 'PMFBY Crop Insurance & KCC',
-    detail: 'Comprehensive Crop Cover at 1.5%-2% Premium + 4% Subsidized Agri Credit on pmfby.gov.in',
+    tag: 'FARM INSURANCE',
+    tagColor: '#F59E0B',
+    title: 'Pradhan Mantri Fasal Bima Yojana',
+    detail: 'Crop loss protection available at nominal premium rates (1.5% to 2%) directly through pmfby.gov.in.',
     portal: 'pmfby.gov.in'
   }
 ];
 
-const CACHE_KEY = 'ai_exhibition_headlines_cache_v2';
+const CACHE_KEY = 'ai_exhibition_headlines_cache_v3';
 const CACHE_TIMESTAMP_KEY = 'ai_exhibition_headlines_timestamp_v2';
 const CACHE_TTL_MS = 20 * 60 * 1000; // 20 minutes
 

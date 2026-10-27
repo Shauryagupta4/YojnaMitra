@@ -67,7 +67,7 @@ const CENTRAL_FLAGSHIP_PATTERNS = [
  */
 const MULTI_STATE_PROGRAM_PATTERNS = [
   {
-    regex: /\b(north\s*eastern\s*council|nec\s*scholarship|doner|pm[- ]?devine)\b/i,
+    regex: /\b(north\s*eastern\s*(?:council|region)|nec\s*(?:merit\s*)?scholarship|ishaan\s*uday|doner|pm[- ]?devine)\b/i,
     region: 'North East',
     name: 'North Eastern Regional Initiative'
   },
@@ -176,6 +176,23 @@ export function detectJurisdiction(
     if (isStateInDept) {
       textDetectedState = stName as IndianStateOrUT;
       textConfidence = 'medium';
+      break;
+    }
+
+    // Check URL pathname and filename for state names (e.g. /public/schemeGuidelines/TRIPURA_PMS_SC.pdf)
+    let urlPath = '';
+    try {
+      urlPath = decodeURIComponent(new URL(url).pathname).toLowerCase();
+    } catch {}
+
+    const isStateInPath = meta.aliases.some(alias => {
+      const regex = new RegExp(`[/_\\-.]${alias.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}[/_\\-.]`, 'i');
+      return regex.test('/' + urlPath + '/');
+    });
+
+    if (isStateInPath) {
+      textDetectedState = stName as IndianStateOrUT;
+      textConfidence = 'high';
       break;
     }
   }

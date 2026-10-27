@@ -99,13 +99,20 @@ export const SCHEME_CANONICAL_ALIASES: Record<string, string> = {
   'aif': 'agriculture infrastructure fund',
   'soil health card': 'soil health card scheme',
   'fee reimbursement': 'post matric',
-  'up fee reimbursement': 'post matric',
+  'up fee reimbursement': 'up post matric scholarship',
   'fee reimbursement scheme': 'post matric',
-  'up scholarship': 'post matric',
-  'post matric scholarship uttar pradesh': 'post matric',
-  'pre matric scholarship uttar pradesh': 'pre matric',
+  'up scholarship': 'up post matric scholarship',
+  'uttar pradesh scholarship': 'up post matric scholarship',
+  'up dashmottar': 'up post matric scholarship',
+  'up dashmottar scholarship': 'up post matric scholarship',
+  'dashmottar scholarship': 'up post matric scholarship',
+  'post matric scholarship uttar pradesh': 'up post matric scholarship',
+  'pre matric scholarship uttar pradesh': 'up pre matric scholarship',
+  'up pre matric': 'up pre matric scholarship',
+  'up pre matric scholarship': 'up pre matric scholarship',
   'general pre matric scholarship': 'pre matric',
-  'general pre matric scholarship uttar pradesh': 'pre matric',
+  'general pre matric scholarship uttar pradesh': 'up pre matric scholarship',
+  'general post matric scholarship uttar pradesh': 'up post matric scholarship',
   'post matric scholarship bihar': 'post matric scholarship bihar',
   'mukhyamantri kanya utthan': 'mukhyamantri kanya utthan yojana',
   'kanya utthan': 'mukhyamantri kanya utthan yojana',
@@ -197,7 +204,7 @@ export const FLAGSHIP_DEFINITIONS: Record<string, FlagshipDefinition> = {
     applyUrl: 'https://scholarships.gov.in/',
     portalName: 'National Scholarship Portal / State e-District',
     category: 'Education',
-    defaultDeadlineStatus: 'open',
+    defaultDeadlineStatus: 'unknown',
     eligibilityCriteria: [
       'Belonging to Scheduled Caste (SC) category.',
       'Pursuing recognized post-matriculation, intermediate, diploma, degree, or postgraduate courses.',
@@ -214,7 +221,7 @@ export const FLAGSHIP_DEFINITIONS: Record<string, FlagshipDefinition> = {
     applyUrl: 'https://scholarships.gov.in/',
     portalName: 'National Scholarship Portal',
     category: 'Education',
-    defaultDeadlineStatus: 'open',
+    defaultDeadlineStatus: 'unknown',
     eligibilityCriteria: [
       'Belonging to Scheduled Tribe (ST) category.',
       'Enrolled in post-matric studies in recognized government or affiliated educational institutions.',
@@ -231,11 +238,47 @@ export const FLAGSHIP_DEFINITIONS: Record<string, FlagshipDefinition> = {
     applyUrl: 'https://scholarships.gov.in/',
     portalName: 'National Scholarship Portal',
     category: 'Education',
-    defaultDeadlineStatus: 'open',
+    defaultDeadlineStatus: 'unknown',
     eligibilityCriteria: [
       'Belonging to Other Backward Classes (OBC) category.',
       'Pursuing post-matric or post-secondary degree/diploma courses.',
       'Annual parental income from all sources not exceeding ₹2.5 Lakh per annum.'
+    ]
+  },
+  'up post matric scholarship': {
+    name: 'UP Post-Matric Scholarship & Fee Reimbursement Scheme',
+    description: 'Government of Uttar Pradesh comprehensive financial assistance program providing full tuition fee reimbursement and maintenance allowance for post-secondary, college, and university students across all categories (General, OBC, SC, ST, Minority).',
+    benefits: '100% reimbursement of approved non-refundable tuition and institutional fees directly via DBT, plus annual maintenance allowance up to ₹13,500/year.',
+    benefitType: 'scholarship',
+    department: 'Social Welfare Department, Government of Uttar Pradesh',
+    officialUrl: 'https://scholarship.up.gov.in/',
+    applyUrl: 'https://scholarship.up.gov.in/',
+    portalName: 'UP Scholarship & Fee Reimbursement Online System',
+    category: 'Education',
+    defaultDeadlineStatus: 'unknown',
+    eligibilityCriteria: [
+      'Must be a permanent resident / domicile of Uttar Pradesh.',
+      'Pursuing recognized Post-Matriculation (Class 11-12), ITI, Polytechnic, Diploma, Undergraduate (B.Tech, B.Sc, B.Com, MBBS), or Postgraduate courses.',
+      'Annual family income from all sources not exceeding ₹2,00,000 (₹2.0 Lakh) for General, OBC, and Minority students; and not exceeding ₹2,50,000 (₹2.5 Lakh) for SC and ST students.',
+      'Student bank account must be Aadhaar-seeded and active on NPCI mapper for Direct Benefit Transfer (DBT).'
+    ]
+  },
+  'up pre matric scholarship': {
+    name: 'UP Pre-Matric Scholarship Scheme',
+    description: 'Government of Uttar Pradesh scholarship for students studying in Class 9 and 10 to support secondary education expenses, uniforms, and study stationery.',
+    benefits: 'Annual scholarship financial assistance of ₹3,500 to ₹4,000 per annum towards school expenses and study materials.',
+    benefitType: 'scholarship',
+    department: 'Social Welfare Department, Government of Uttar Pradesh',
+    officialUrl: 'https://scholarship.up.gov.in/',
+    applyUrl: 'https://scholarship.up.gov.in/',
+    portalName: 'UP Scholarship & Fee Reimbursement Online System',
+    category: 'Education',
+    defaultDeadlineStatus: 'unknown',
+    eligibilityCriteria: [
+      'Regular student enrolled in Class 9th or Class 10th in a recognized school in Uttar Pradesh.',
+      'Must be a permanent resident / domicile of Uttar Pradesh.',
+      'Annual family income from all sources not exceeding ₹2,50,000 (₹2.5 Lakh) per annum.',
+      'Aadhaar-seeded bank account for DBT payment.'
     ]
   },
   'post matric': {
@@ -248,7 +291,7 @@ export const FLAGSHIP_DEFINITIONS: Record<string, FlagshipDefinition> = {
     applyUrl: 'https://scholarships.gov.in/',
     portalName: 'National Scholarship Portal / State e-District',
     category: 'Education',
-    defaultDeadlineStatus: 'open',
+    defaultDeadlineStatus: 'unknown',
     eligibilityCriteria: [
       'Enrolled in recognized post-matriculation, intermediate, diploma, undergraduate, or postgraduate degree course.',
       'Must be a permanent resident/native of the state or studying in a recognized institution.',
@@ -265,7 +308,7 @@ export const FLAGSHIP_DEFINITIONS: Record<string, FlagshipDefinition> = {
     applyUrl: 'https://scholarships.gov.in/',
     portalName: 'National Scholarship Portal / State e-District',
     category: 'Education',
-    defaultDeadlineStatus: 'open',
+    defaultDeadlineStatus: 'unknown',
     eligibilityCriteria: [
       'Enrolled in recognized post-matriculation, intermediate, diploma, undergraduate, or postgraduate degree course.',
       'Must be a permanent resident/native of the state or studying in a recognized institution.',
@@ -282,7 +325,7 @@ export const FLAGSHIP_DEFINITIONS: Record<string, FlagshipDefinition> = {
     applyUrl: 'https://scholarships.gov.in/',
     portalName: 'National Scholarship Portal / State e-District',
     category: 'Education',
-    defaultDeadlineStatus: 'open',
+    defaultDeadlineStatus: 'unknown',
     eligibilityCriteria: [
       'Regular student enrolled in Class 9th or 10th in a government or recognized private school.',
       'Domicile/native of the state.',
@@ -299,7 +342,7 @@ export const FLAGSHIP_DEFINITIONS: Record<string, FlagshipDefinition> = {
     applyUrl: 'https://scholarships.gov.in/',
     portalName: 'National Scholarship Portal / State e-District',
     category: 'Education',
-    defaultDeadlineStatus: 'open',
+    defaultDeadlineStatus: 'unknown',
     eligibilityCriteria: [
       'Regular student enrolled in Class 9th or 10th in a government or recognized private school.',
       'Domicile/native of the state.',
@@ -316,7 +359,7 @@ export const FLAGSHIP_DEFINITIONS: Record<string, FlagshipDefinition> = {
     applyUrl: 'https://scholarships.gov.in/',
     portalName: 'National Scholarship Portal (MoE)',
     category: 'Education',
-    defaultDeadlineStatus: 'open',
+    defaultDeadlineStatus: 'unknown',
     eligibilityCriteria: [
       'Students studying in Class 9 who secured at least 55% marks (50% for SC/ST) in Class 8.',
       'Enrolled in Government, Government-aided, or Local Body school.',
@@ -333,7 +376,7 @@ export const FLAGSHIP_DEFINITIONS: Record<string, FlagshipDefinition> = {
     applyUrl: 'https://scholarships.gov.in/',
     portalName: 'National Scholarship Portal / NTA',
     category: 'Education',
-    defaultDeadlineStatus: 'open',
+    defaultDeadlineStatus: 'unknown',
     eligibilityCriteria: [
       'Belonging to OBC, EBC, or DNT (De-notified, Nomadic and Semi-Nomadic Tribes) category.',
       'Studying in Class 9 or 11 in recognized Top Class Schools.',
@@ -367,7 +410,7 @@ export const FLAGSHIP_DEFINITIONS: Record<string, FlagshipDefinition> = {
     applyUrl: 'https://pmsonline.bih.nic.in/',
     portalName: 'Bihar Post Matric Scholarship Portal',
     category: 'Education',
-    defaultDeadlineStatus: 'open',
+    defaultDeadlineStatus: 'unknown',
     eligibilityCriteria: [
       'Permanent resident of Bihar.',
       'Belonging to SC, ST, BC, or EBC category.',
@@ -487,7 +530,7 @@ export const FLAGSHIP_DEFINITIONS: Record<string, FlagshipDefinition> = {
     applyUrl: 'https://edistrict.delhigovt.nic.in/',
     portalName: 'e-District Delhi Portal',
     category: 'Education',
-    defaultDeadlineStatus: 'open',
+    defaultDeadlineStatus: 'unknown',
     eligibilityCriteria: [
       'Belonging to SC, ST, OBC, or minority community.',
       'Domiciled in Delhi with family income up to ₹3.0 Lakh per annum.',
@@ -504,7 +547,7 @@ export const FLAGSHIP_DEFINITIONS: Record<string, FlagshipDefinition> = {
     applyUrl: 'https://edistrict.delhigovt.nic.in/',
     portalName: 'e-District Delhi Portal',
     category: 'Education',
-    defaultDeadlineStatus: 'open',
+    defaultDeadlineStatus: 'unknown',
     eligibilityCriteria: [
       'Belonging to SC, ST, OBC, or minority community in Delhi.',
       'Secured at least 60% marks in previous examination.',
@@ -521,7 +564,7 @@ export const FLAGSHIP_DEFINITIONS: Record<string, FlagshipDefinition> = {
     applyUrl: 'https://edistrict.delhigovt.nic.in/',
     portalName: 'e-District Delhi Portal',
     category: 'Education',
-    defaultDeadlineStatus: 'open',
+    defaultDeadlineStatus: 'unknown',
     eligibilityCriteria: [
       'SC, ST, OBC, or minority student graduating from recognized colleges/institutes in Delhi.',
       'State topper or highest marks in technical/professional examination.'
@@ -537,7 +580,7 @@ export const FLAGSHIP_DEFINITIONS: Record<string, FlagshipDefinition> = {
     applyUrl: 'https://edistrict.delhigovt.nic.in/',
     portalName: 'Delhi SC/ST Welfare Department',
     category: 'Education',
-    defaultDeadlineStatus: 'open',
+    defaultDeadlineStatus: 'unknown',
     eligibilityCriteria: [
       'Permanent resident of Delhi belonging to SC, ST, OBC, or EWS category.',
       'Family income up to ₹8 Lakh per annum.',
@@ -877,19 +920,32 @@ export function evaluateProfileCriteria(params: {
     !/\b(?:annual|family|parental|household|gross)\s*income\b/i.test(combinedCriteriaText) &&
     !/\bincome\s*(?:limit|ceiling|below|less than|up to|not exceeding|not more than|under|should not exceed|maximum of)\b/i.test(combinedCriteriaText);
 
-  const incomeMatch = isBenefitTransferOnly
-    ? null
-    : (combinedCriteriaText.match(/(?:annual|family|parental|household|gross)?\s*income(?:[^0-9₹\n\r]{0,35}?)(?:limit|ceiling|below|less than|up to|not exceeding|not more than|under|should not exceed|maximum of)\s*(?:of|is|shall be)?\s*(?:rs\.?|₹)?\s*([0-9]+(?:[\.,][0-9]+)?)\s*(lakh|lac|k|crore)?/i) ||
-       combinedCriteriaText.match(/(?:annual|family|parental|household|gross)\s*income\s*(?:is|shall be|of)?\s*(?:rs\.?|₹)?\s*([0-9]+(?:[\.,][0-9]+)?)\s*(lakh|lac|k|crore)?/i));
+  const rangeIncomeMatch = !isBenefitTransferOnly
+    ? combinedCriteriaText.match(/(?:annual|family|parental|household|gross)?\s*income(?:[^0-9₹\n\r]{0,40}?)(?:limit|ceiling|below|less than|up to|upto|not exceeding|not more than|under|should not exceed|maximum of)?\s*(?:of|is|shall be)?\s*(?:rs\.?|₹)?\s*([0-9]+(?:[\.,][0-9]+)?)\s*(?:to|-|and)\s*(?:rs\.?|₹)?\s*([0-9]+(?:[\.,][0-9]+)?)\s*(lakh|lac|k|crore)?/i)
+    : null;
 
-  if (incomeMatch) {
+  const singleIncomeMatch = !isBenefitTransferOnly && !rangeIncomeMatch
+    ? (combinedCriteriaText.match(/(?:annual|family|parental|household|gross)?\s*income(?:[^0-9₹\n\r]{0,35}?)(?:limit|ceiling|below|less than|up to|upto|not exceeding|not more than|under|should not exceed|maximum of)\s*(?:of|is|shall be)?\s*(?:rs\.?|₹)?\s*([0-9]+(?:[\.,][0-9]+)?)\s*(lakh|lac|k|crore)?/i) ||
+       combinedCriteriaText.match(/(?:annual|family|parental|household|gross)\s*income\s*(?:is|shall be|of)?\s*(?:rs\.?|₹)?\s*([0-9]+(?:[\.,][0-9]+)?)\s*(lakh|lac|k|crore)?/i))
+    : null;
+
+  if (rangeIncomeMatch || singleIncomeMatch) {
     evaluatedChecksCount++;
-    const val = parseFloat(incomeMatch[1].replace(/,/g, ''));
-    const unit = (incomeMatch[2] || '').toLowerCase();
-    let maxIncome = val;
-    if (unit.startsWith('lakh') || unit.startsWith('lac')) maxIncome = val * 100000;
-    else if (unit === 'k') maxIncome = val * 1000;
-    else if (unit === 'crore') maxIncome = val * 10000000;
+    const rawVal = rangeIncomeMatch
+      ? parseFloat(rangeIncomeMatch[2].replace(/,/g, ''))
+      : parseFloat(singleIncomeMatch![1].replace(/,/g, ''));
+    const unit = ((rangeIncomeMatch ? rangeIncomeMatch[3] : singleIncomeMatch![2]) || '').toLowerCase();
+    let maxIncome = rawVal;
+    if (unit.startsWith('lakh') || unit.startsWith('lac')) {
+      maxIncome = rawVal * 100000;
+    } else if (unit === 'k') {
+      maxIncome = rawVal * 1000;
+    } else if (unit === 'crore') {
+      maxIncome = rawVal * 10000000;
+    } else if (rawVal <= 100 && (/\b(lakhs?|lac|lacs?)\b/i.test(combinedCriteriaText) || rawVal < 100)) {
+      // Small numeric caps in Indian welfare eligibility (e.g. 1.5, 2, 2.5, 3, 5, 8) are always Lakhs
+      maxIncome = rawVal * 100000;
+    }
 
     if (userIncome === undefined || userIncome === null) {
       unknownReasons.push(`Scheme specifies annual income ceiling (₹${maxIncome.toLocaleString('en-IN')}); user income not specified in profile.`);
@@ -902,7 +958,8 @@ export function evaluateProfileCriteria(params: {
 
   // 3. Gender / Women Specific Check
   if (/\b(girl students?|girls? admitted|female candidates?|women candidates?|girl child|for girls|for women|female students?|girls only|women only)\b/i.test(combinedCriteriaText) ||
-      /\bpragati\b/i.test(combinedCriteriaText)) {
+      /\b(pragati|begum\s*hazrat\s*mahal|kanya|balika|mahila|ladli)\b/i.test(combinedCriteriaText) ||
+      /\b(pragati|begum\s*hazrat\s*mahal|kanya|balika|mahila|ladli|girls?|women)\b/i.test(schemeName || '')) {
     evaluatedChecksCount++;
     if (!userGender || userGender === 'all') {
       unknownReasons.push('Scheme specifies gender eligibility (restricted to female / girl students); gender not specified in profile.');
@@ -914,6 +971,7 @@ export function evaluateProfileCriteria(params: {
   }
 
   // 4. Caste / Social Category Check
+  const mentionsGeneral = /\b(general|unreserved|all categories|all students|open to all|all communities)\b/i.test(combinedCriteriaText);
   const isCombinedSCOBCAny = /\b(belonging to|belong to|reserved for|only for|applicable to)\s*(?:the\s+)?(?:sc|st|obc)/i.test(combinedCriteriaText) ||
     /\b(sc\s*[\/,]\s*st\s*[\/,]\s*obc|sc\s*[\/,]\s*obc)\s+(?:students?|candidates?|scholarship|schemes?)\b/i.test(combinedCriteriaText) ||
     /\b(?:schemes?|scholarships?|assistance)\s+for\s+(?:the\s+)?(?:sc|st|obc)/i.test(combinedCriteriaText) ||
@@ -924,7 +982,10 @@ export function evaluateProfileCriteria(params: {
   const isReservedOBC = /\b(belonging to (?:the\s+)?(?:obc|other backward)|for obc students|obc category|reserved for (?:the\s+)?(?:obc|other backward))\b/i.test(combinedCriteriaText);
   const isReservedMinority = /\b(belonging to (?:a\s+)?minority community|for minority students|minority category|minority community students?)\b/i.test(combinedCriteriaText);
 
-  if (isCombinedSCOBCAny) {
+  if (mentionsGeneral && userCategory && userCategory.includes('general')) {
+    evaluatedChecksCount++;
+    matchedReasons.push('Social category matched: General (scheme covers General / all categories).');
+  } else if (isCombinedSCOBCAny) {
     evaluatedChecksCount++;
     if (!userCategory) {
       unknownReasons.push('Scheme specifies category criteria (SC/ST/OBC); social category not specified.');
@@ -1042,15 +1103,34 @@ export function evaluateProfileCriteria(params: {
     }
   }
 
-  // 7. Differently Abled (PwD) Check
-  if (/\b(differently abled|specially abled|divyang|pwd candidates?|students? with disabilities?|locomotor disability)\b/i.test(combinedCriteriaText) &&
-      !/\b(40% disability|concession|relaxation)\b/i.test(combinedCriteriaText)) {
+  // 7. Differently Abled (PwD) / Disability Check
+  const isDedicatedDisabilityScheme =
+    /\b(saksham|differently[- ]?abled|specially[- ]?abled|divyang|disabilit(?:y|ies)|pwd candidates?|locomotor disability)\b/i.test(combinedCriteriaText) ||
+    /\b(saksham|specially[- ]?abled|differently[- ]?abled|disabilit(?:y|ies))\b/i.test(schemeName || '');
+
+  // Distinguish between a dedicated disability scheme and a general scheme that merely offers a 40% disability relaxation/concession
+  const isMereRelaxation =
+    /\b(?:concession|relaxation)\s+for\s+(?:pwd|differently abled|disabled)\b/i.test(combinedCriteriaText) &&
+    !/\b(saksham|specially[- ]?abled|differently[- ]?abled|only for differently|reserved for differently|students? with disabilities?)\b/i.test(combinedCriteriaText) &&
+    !/\b(saksham|specially[- ]?abled|differently[- ]?abled)\b/i.test(schemeName || '');
+
+  if (isDedicatedDisabilityScheme && !isMereRelaxation) {
     evaluatedChecksCount++;
     if (isPwd) {
       matchedReasons.push('Differently-abled (PwD) criteria satisfied.');
     } else {
       unmatchedReasons.push('Scheme is reserved for differently-abled (PwD) students; profile indicates Not Differently Abled.');
     }
+  }
+
+  // 7b. Special Target Groups (Orphans, Armed Forces Deceased / Martyr Wards, Swanath)
+  const isOrphanOrMartyrWardScheme =
+    /\b(swanath|orphan(?:ed)?\s*children|wards\s+of\s+(?:armed|defence|paramilitary)\s*forces\s+(?:deceased|martyred|killed|in action)|lost\s+both\s+parents|covid[- ]?affected\s+children)\b/i.test(combinedCriteriaText) ||
+    /\bswanath\b/i.test(schemeName || '');
+
+  if (isOrphanOrMartyrWardScheme) {
+    evaluatedChecksCount++;
+    unmatchedReasons.push('Scheme is restricted to orphaned children, wards of armed forces personnel deceased in action, or COVID-affected children (Swanath criteria); standard applicant profile not eligible.');
   }
 
   // 8. Age Limit Check
@@ -1080,6 +1160,22 @@ export function evaluateProfileCriteria(params: {
       } else {
         unknownReasons.push(`Domicile of ${targetState} required; user state unconfirmed.`);
       }
+    }
+  }
+
+  // 9b. North-Eastern Region (NER / NEC / Ishaan Uday) Domicile Check
+  const isNorthEastScheme =
+    /\b(north\s*eastern\s*(?:region|council)|ner\s*domicile|resident\s+of\s+north\s*east|nec\s*(?:merit\s*)?scholarship|ishaan\s*uday)\b/i.test(combinedCriteriaText) ||
+    /\b(north\s*eastern\s*(?:region|council)|nec\s*(?:merit\s*)?scholarship|ishaan\s*uday)\b/i.test(schemeName || '');
+
+  if (isNorthEastScheme) {
+    evaluatedChecksCount++;
+    const neStates = ['assam', 'arunachal pradesh', 'manipur', 'meghalaya', 'mizoram', 'nagaland', 'sikkim', 'tripura'];
+    const curState = (targetState || userProfile?.state || '').toLowerCase();
+    if (curState && !neStates.includes(curState)) {
+      unmatchedReasons.push(`Scheme is restricted to domicile of North Eastern Region (NER) states (${neStates.join(', ')}); applicant state is ${targetState || userProfile?.state}.`);
+    } else if (curState && neStates.includes(curState)) {
+      matchedReasons.push(`Domicile verified for North Eastern Region (${curState}).`);
     }
   }
 
@@ -1120,6 +1216,149 @@ export function evaluateProfileCriteria(params: {
     unmatchedReasons: [],
     unknownReasons: ['Eligibility details not fully verified.'],
     hasRealCriteria: true
+  };
+}
+
+/**
+ * Safely parses human date representations (e.g. "30-06-2026", "31/03/2026", "June 30, 2026", "31 March 2026")
+ * into a Date object for temporal comparison.
+ */
+export function parseDateString(dateStr: string): Date | null {
+  if (!dateStr) return null;
+  const clean = dateStr.trim();
+
+  // Pattern: DD-MM-YYYY or DD/MM/YYYY
+  const dmyMatch = clean.match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/);
+  if (dmyMatch) {
+    const day = parseInt(dmyMatch[1], 10);
+    const month = parseInt(dmyMatch[2], 10) - 1;
+    const year = parseInt(dmyMatch[3], 10);
+    return new Date(year, month, day, 23, 59, 59);
+  }
+
+  // Pattern: YYYY-MM-DD
+  const ymdMatch = clean.match(/^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/);
+  if (ymdMatch) {
+    const year = parseInt(ymdMatch[1], 10);
+    const month = parseInt(ymdMatch[2], 10) - 1;
+    const day = parseInt(ymdMatch[3], 10);
+    return new Date(year, month, day, 23, 59, 59);
+  }
+
+  // Pattern: 30 June 2026, 30th June 2026, or June 30, 2026
+  const textDateMatch = clean.match(/^(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)[,\s]+(\d{4})$/) ||
+    clean.match(/^([A-Za-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?[,\s]+(\d{4})$/);
+  if (textDateMatch) {
+    const isMonthFirst = isNaN(parseInt(textDateMatch[1], 10));
+    const day = parseInt(isMonthFirst ? textDateMatch[2] : textDateMatch[1], 10);
+    const monthStr = (isMonthFirst ? textDateMatch[1] : textDateMatch[2]).toLowerCase();
+    const year = parseInt(textDateMatch[3], 10);
+    const months: Record<string, number> = {
+      jan: 0, january: 0, feb: 1, february: 1, mar: 2, march: 2,
+      apr: 3, april: 3, may: 4, jun: 5, june: 5, jul: 6, july: 6,
+      aug: 7, august: 7, sep: 8, september: 8, oct: 9, october: 9,
+      nov: 10, november: 10, dec: 11, december: 11
+    };
+    if (monthStr in months) {
+      return new Date(year, months[monthStr], day, 23, 59, 59);
+    }
+  }
+
+  const standardParsed = new Date(clean);
+  if (!isNaN(standardParsed.getTime())) {
+    return standardParsed;
+  }
+
+  return null;
+}
+
+/**
+ * Resolves scheme application deadline status and date.
+ * Inspects explicit dates, closed indicators (e.g. applications closed, registration ended, expired),
+ * and state-specific operational cycles (e.g. Delhi e-District annual cutoff).
+ */
+export function resolveSchemeDeadline(params: {
+  raw: any;
+  aggregateText: string;
+  isDelhiScholarship?: boolean;
+  flagshipDef?: FlagshipDefinition;
+}): { deadline: string | null; deadlineStatus: DeadlineStatus } {
+  const { raw, aggregateText, isDelhiScholarship, flagshipDef } = params;
+  const now = new Date();
+
+  // 1. Check for explicit closed/ended language across raw and aggregate text
+  const textToScan = [
+    raw.deadline || '',
+    raw.deadlineStatus || '',
+    raw.academicYearOrValidity || '',
+    raw.description || '',
+    raw.sourceTitle || '',
+    raw.evidenceSnippets?.benefitEvidence || '',
+    raw.evidenceSnippets?.eligibilityEvidence || '',
+    raw.evidenceSnippets?.nameEvidence || '',
+    ...(raw.supportingReferences || []).map(r => (r.title || '') + ' ' + (r.url || '')),
+    aggregateText.slice(0, 5000)
+  ].join(' ');
+
+  const closedPattern = /\b(?:application[s]?\s+(?:are\s+|is\s+)?closed|registration[s]?\s+(?:are\s+|is\s+)?closed|portal\s+(?:is\s+)?closed|deadline\s+(?:is\s+over|has\s+ended|has\s+passed|has\s+expired|expired|ended|over|closed)|last\s+date\s+(?:is\s+over|has\s+passed|ended|was)|registration\s+ended|currently\s+closed|application\s+window\s+(?:is\s+)?closed|no\s+longer\s+accepting\s+applications?|closed\s+for\s+applications?|admissions?\s+closed|form\s+submission\s+closed|expired\b)/i;
+
+  if (raw.deadlineStatus === 'closed' || closedPattern.test(textToScan)) {
+    return {
+      deadline: raw.deadline || 'Applications Closed',
+      deadlineStatus: 'closed'
+    };
+  }
+
+  // 2. Date extraction: Look for explicit dates tied to deadline / last date
+  const dateRegex = /(?:deadline|last\s+date|closing\s+date|due\s+date|ended(?:\s+on)?|valid\s+(?:upto|till)|apply\s+(?:by|before))[:\s]+([0-9]{1,2}[-/.][0-9]{1,2}[-/.][0-9]{2,4}|[0-9]{1,2}(?:st|nd|rd|th)?\s+(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember))[,\s]+[0-9]{4}|(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember))\s+[0-9]{1,2}(?:st|nd|rd|th)?[,\s]+[0-9]{4})/i;
+
+  const targetDateCandidate = raw.deadline || textToScan.match(dateRegex)?.[1];
+  if (targetDateCandidate) {
+    const parsedDate = parseDateString(targetDateCandidate);
+    if (parsedDate) {
+      if (parsedDate.getTime() < now.getTime()) {
+        return {
+          deadline: `Closed on ${targetDateCandidate}`,
+          deadlineStatus: 'closed'
+        };
+      } else {
+        return {
+          deadline: targetDateCandidate,
+          deadlineStatus: 'open'
+        };
+      }
+    }
+  }
+
+  // 3. Delhi State e-District portal cycle verification:
+  // On edistrict.delhigovt.nic.in, the academic cycle closed June 30, 2026.
+  // Unless evidence documents a new active window for the succeeding cycle, it is closed.
+  if (isDelhiScholarship) {
+    return {
+      deadline: 'Application Window Closed (Cycle ended June 30, 2026)',
+      deadlineStatus: 'closed'
+    };
+  }
+
+  // 4. Default to raw status if valid and not closed
+  if (raw.deadlineStatus === 'open' || raw.deadlineStatus === 'upcoming') {
+    return {
+      deadline: raw.deadline || null,
+      deadlineStatus: raw.deadlineStatus
+    };
+  }
+
+  const defaultStatus = flagshipDef?.defaultDeadlineStatus;
+  if (defaultStatus && defaultStatus !== 'open') {
+    return {
+      deadline: null,
+      deadlineStatus: defaultStatus
+    };
+  }
+
+  return {
+    deadline: null,
+    deadlineStatus: 'unknown'
   };
 }
 
@@ -1339,7 +1578,19 @@ export function verifyAndDeduplicateSchemes(params: {
     // 0. Candidate Classification Guard: Only genuine individual schemes can become separate scheme cards
     // Directories, portals, articles, and guidelines may be supporting sources but must not become separate cards
     const candidateClass = classifyCandidate(rawName, rawUrl, raw.description || '');
-    if (candidateClass !== 'individual_scheme') {
+    const isExplicitDocOrGuideline =
+      candidateClass === 'guidelines_or_document' ||
+      candidateClass === 'supporting_document' ||
+      /\.(pdf|docx?|xlsx?)$/i.test(rawUrl || '') ||
+      /\/schemeguidelines\/|\/guidelines?\//i.test(rawUrl || '') ||
+      /^(rules?\s+for\s+(?:the\s+)?award|guidelines?\s+(?:for|of)|scheme\s+guidelines?)\b/i.test(rawName);
+
+    const isApexScholarshipCandidate = !isExplicitDocOrGuideline && (
+      (rawUrl && (rawUrl.toLowerCase().includes('scholarship.up.gov.in') || rawUrl.toLowerCase().includes('scholarships.gov.in') || rawUrl.toLowerCase().includes('buddy4study.com'))) ||
+      /\b(up scholarship|uttar pradesh scholarship|dashmottar|shulk pratipoorti|post[- ]?matric.*(?:up|uttar pradesh))\b/i.test(rawName)
+    );
+
+    if (candidateClass !== 'individual_scheme' && !isApexScholarshipCandidate) {
       verificationBreakdown.rejectedCount++;
       const reasonDescriptions: Record<string, string> = {
         official_scheme_directory: 'Official scheme directory or department listing page; preserved as supporting reference, not an individual scheme card.',
@@ -1647,6 +1898,9 @@ export function verifyAndDeduplicateSchemes(params: {
     if (isStateImplementedCss) {
       if (activeState.includes('uttar pradesh') || activeState === 'up') {
         applicationUrl = 'https://scholarship.up.gov.in/';
+        if (!officialUrl || officialUrl.includes('scholarships.gov.in') || officialUrl.includes('umang.gov.in')) {
+          officialUrl = 'https://scholarship.up.gov.in/';
+        }
       } else if (activeState.includes('bihar')) {
         applicationUrl = 'https://pmsonline.bih.nic.in/';
       } else if (activeState.includes('delhi')) {
@@ -1766,14 +2020,14 @@ export function verifyAndDeduplicateSchemes(params: {
 
     const stateVal = level === 'State' ? (jurisdictionRes.detectedState || targetState) : null;
 
-    const deadlineStatus: DeadlineStatus =
-      raw.deadlineStatus === 'open' ||
-      raw.deadlineStatus === 'closed' ||
-      raw.deadlineStatus === 'upcoming'
-        ? raw.deadlineStatus
-        : 'unknown';
-
-    const deadline = deadlineStatus === 'unknown' ? null : (raw.deadline || null);
+    const initialDeadlineRes = resolveSchemeDeadline({
+      raw,
+      aggregateText: aggregateFetchedText,
+      isDelhiScholarship: false,
+      flagshipDef
+    });
+    let deadlineStatus: DeadlineStatus = initialDeadlineRes.deadlineStatus;
+    let deadline: string | null = initialDeadlineRes.deadline;
 
     const eligibilityStatus: EligibilityStatus =
       raw.eligibilityStatus === 'not_eligible'
@@ -2026,6 +2280,17 @@ export function verifyAndDeduplicateSchemes(params: {
       finalPortalName = 'UP Scholarship and Fee Reimbursement Online System';
     }
 
+    if (isDelhiScholarship) {
+      const delhiDeadline = resolveSchemeDeadline({
+        raw,
+        aggregateText: aggregateFetchedText,
+        isDelhiScholarship: true,
+        flagshipDef
+      });
+      deadlineStatus = delhiDeadline.deadlineStatus;
+      deadline = delhiDeadline.deadline;
+    }
+
     const canonical: CanonicalScheme = {
       id: raw.id || `live-${normKey.replace(/\s+/g, '-').slice(0, 30)}`,
       name: cleanedName,
@@ -2120,31 +2385,35 @@ export function verifyAndDeduplicateSchemes(params: {
     // implementing department/e-District portal (e.g. UP scholarship.up.gov.in / Delhi e-District).
     // These represent the exact same scheme and MUST be deduplicated together.
     let unifiedNormKey = normKey;
-    if (normKey.includes('post matric')) {
-      const userCat = (userProfile?.socialCategory || '').toLowerCase();
-      if (userCat.includes('sc')) {
-        unifiedNormKey = 'post matric scholarship sc';
-      } else if (userCat.includes('st')) {
-        unifiedNormKey = 'post matric scholarship st';
-      } else if (userCat.includes('obc')) {
-        unifiedNormKey = 'post matric scholarship obc';
-      } else {
-        unifiedNormKey = 'post matric';
+    if (userProfile?.socialCategory) {
+      const userCat = (userProfile.socialCategory || '').toLowerCase();
+      if (normKey === 'post matric' || normKey === 'post matric scholarship') {
+        if (userCat.includes('sc')) {
+          unifiedNormKey = 'post matric scholarship sc';
+        } else if (userCat.includes('st')) {
+          unifiedNormKey = 'post matric scholarship st';
+        } else if (userCat.includes('obc')) {
+          unifiedNormKey = 'post matric scholarship obc';
+        } else if (userCat.includes('minority')) {
+          unifiedNormKey = 'post matric scholarship minority';
+        }
+      } else if (normKey === 'pre matric' || normKey === 'pre matric scholarship') {
+        if (userCat.includes('sc')) {
+          unifiedNormKey = 'pre matric scholarship sc';
+        } else if (userCat.includes('st')) {
+          unifiedNormKey = 'pre matric scholarship st';
+        } else if (userCat.includes('obc')) {
+          unifiedNormKey = 'pre matric scholarship obc';
+        }
       }
-    } else if (normKey.includes('pre matric')) {
-      unifiedNormKey = 'pre matric';
     }
 
-    const isCentrallySponsoredScholarship =
-      unifiedNormKey.includes('post matric') ||
-      unifiedNormKey.includes('pre matric') ||
-      unifiedNormKey.includes('central sector scheme') ||
-      Boolean(flagshipDef);
-
-    const dedupKey = isCentrallySponsoredScholarship
-      ? `${unifiedNormKey}::unified`
-      : jurisdictionRes.jurisdiction === 'state' && (jurisdictionRes.detectedState || targetState)
-      ? `${unifiedNormKey}::state::${(jurisdictionRes.detectedState || targetState).toLowerCase()}`
+    // Centrally Sponsored Schemes that are identical nationally use a unified key,
+    // while state-specific schemes retain state scope so they never collide or erase each other.
+    const isStateLevel = (finalLevel === 'State' || isStateImplementedCss || jurisdictionRes.jurisdiction === 'state') && Boolean(finalState || jurisdictionRes.detectedState || targetState);
+    const resolvedStateKey = (finalState || jurisdictionRes.detectedState || targetState || '').toLowerCase();
+    const dedupKey = isStateLevel
+      ? `${unifiedNormKey}::state::${resolvedStateKey}`
       : `${unifiedNormKey}::central`;
 
     const existing = verifiedMap.get(dedupKey) || unverifiedMap.get(dedupKey);
@@ -2438,6 +2707,22 @@ export function verifyAndDeduplicateSchemes(params: {
         }
       };
 
+      const flagshipCriteria = def.eligibilityCriteria && def.eligibilityCriteria.length > 0
+        ? def.eligibilityCriteria
+        : ['Official Central flagship scheme supported by primary guidelines in evidence.'];
+
+      const flagshipProfileEval = evaluateProfileCriteria({
+        schemeName: def.name,
+        description: def.description,
+        criteriaSummary: flagshipCriteria,
+        reasons: ['Primary official guidelines discovered and verified in search evidence'],
+        userProfile,
+        targetState
+      });
+
+      const isFlagshipMatched = flagshipProfileEval.status === 'matched';
+      const isFlagshipNotMatched = flagshipProfileEval.status === 'not_matched';
+
       const canonicalFlagship: CanonicalScheme = {
         id: `canonical-${parentKey.replace(/\s+/g, '-').slice(0, 30)}`,
         name: def.name,
@@ -2459,14 +2744,20 @@ export function verifyAndDeduplicateSchemes(params: {
         benefitVerified: true,
         applicationVerified: hasApply,
         eligibilityDetailsVerified: true,
-        eligibilityMatch: 'unknown',
+        eligibilityMatch: flagshipProfileEval.status,
         fieldEvidence,
         eligibility: {
-          status: 'potentially_eligible',
-          matchState: 'unknown',
-          criteriaSummary: ['Official Central flagship scheme', 'Aadhaar e-KYC and cultivable land ownership documentation required'],
-          reasons: ['Primary official guidelines discovered and verified in search evidence'],
-          missingOrCautionCriteria: ['Landholding and e-KYC verification required.']
+          status: isFlagshipNotMatched ? 'not_eligible' : 'potentially_eligible',
+          matchState: flagshipProfileEval.status,
+          criteriaSummary: flagshipCriteria,
+          reasons: isFlagshipNotMatched
+            ? flagshipProfileEval.unmatchedReasons
+            : (isFlagshipMatched && flagshipProfileEval.matchedReasons.length > 0
+                ? flagshipProfileEval.matchedReasons
+                : ['Primary official guidelines discovered and verified in search evidence']),
+          missingOrCautionCriteria: isFlagshipNotMatched
+            ? flagshipProfileEval.unmatchedReasons
+            : (flagshipProfileEval.unknownReasons.length > 0 ? flagshipProfileEval.unknownReasons : [])
         },
         requiredDocuments: ['Aadhaar Card', 'Land Record / Khata Khasra', 'Bank Account details', 'e-KYC'],
         officialInformationUrl: officialDoc?.url || def.officialUrl,
@@ -2490,13 +2781,50 @@ export function verifyAndDeduplicateSchemes(params: {
     }
   }
 
-  const finalVerifiedSchemes = Array.from(verifiedMap.values());
+  // Final safeguard: Deduplicate verified schemes by normalized name and state
+  const dedupedVerified: CanonicalScheme[] = [];
+  const seenVerifiedKeys = new Set<string>();
+
+  for (const s of Array.from(verifiedMap.values())) {
+    const sNorm = normalizeSchemeName(s.name);
+    const sKey = `${sNorm}::${s.level}::${(s.state || targetState || 'central').toLowerCase()}`;
+    if (seenVerifiedKeys.has(sKey)) {
+      const existing = dedupedVerified.find(ex => {
+        const exNorm = normalizeSchemeName(ex.name);
+        return `${exNorm}::${ex.level}::${(ex.state || targetState || 'central').toLowerCase()}` === sKey;
+      });
+      if (existing) {
+        deduplicatedCount++;
+        existing.sourceUrls = Array.from(new Set([...existing.sourceUrls, ...s.sourceUrls]));
+        existing.supportingEvidenceUrls = Array.from(new Set([
+          ...(existing.supportingEvidenceUrls || []),
+          ...(s.supportingEvidenceUrls || [])
+        ]));
+        if (s.supportingReferences) {
+          existing.supportingReferences = existing.supportingReferences || [];
+          for (const ref of s.supportingReferences) {
+            if (!existing.supportingReferences.some(r => r.url === ref.url)) {
+              existing.supportingReferences.push(ref);
+            }
+          }
+        }
+      }
+      continue;
+    }
+    seenVerifiedKeys.add(sKey);
+    dedupedVerified.push(s);
+  }
+
+  const finalVerifiedSchemes = dedupedVerified;
   const finalUnverifiedCandidates = Array.from(unverifiedMap.values()).filter(c => {
     if (isInvalidSchemeName(c.name)) return false;
     const src = classifySource(c.officialUrl, targetState);
     if (src.isCommercial) return false;
     if (/justdial|indiamart|tradeindia|sulekha|howdoiindia|cscportal|\.in\.net/i.test(c.officialUrl)) return false;
     if (c.level === 'State' && c.state && targetState && c.state.toLowerCase() !== targetState.toLowerCase()) return false;
+    // Do not show unverified candidate if already present in verified schemes
+    const cNorm = normalizeSchemeName(c.name);
+    if (seenVerifiedKeys.has(`${cNorm}::${c.level}::${(c.state || targetState || 'central').toLowerCase()}`)) return false;
     return true;
   });
   const allCanonicalSchemes = [...finalVerifiedSchemes, ...finalUnverifiedCandidates];

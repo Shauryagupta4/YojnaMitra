@@ -69,7 +69,7 @@ export async function callOpenRouterChat(
   }
 
   const model = getConfiguredFreeModel(options.model);
-  const timeoutMs = options.timeoutMs || 25000;
+  const timeoutMs = options.timeoutMs || 10000;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -77,7 +77,7 @@ export async function callOpenRouterChat(
     model,
     messages: options.messages,
     temperature: typeof options.temperature === 'number' ? options.temperature : 0.1,
-    max_tokens: Math.min(options.maxTokens || 3500, 4500)
+    max_tokens: Math.min(options.maxTokens || 1800, 2200)
   };
 
   if (options.responseFormat || options.isJson) {
@@ -96,8 +96,6 @@ export async function callOpenRouterChat(
       body: JSON.stringify(bodyPayload),
       signal: controller.signal
     });
-
-    clearTimeout(timer);
 
     if (!res.ok) {
       const errBody = await res.text().catch(() => '');
@@ -132,10 +130,11 @@ export async function callOpenRouterChat(
       rawJson: data
     };
   } catch (err: any) {
-    clearTimeout(timer);
-    if (err.name === 'AbortError') {
+    if (err.name === 'AbortError' || controller.signal.aborted) {
       throw new Error(`OpenRouter Request Timed Out after ${timeoutMs}ms on free model ${model}.`);
     }
     throw err;
+  } finally {
+    clearTimeout(timer);
   }
 }

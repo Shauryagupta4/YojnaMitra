@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:seed-schemes": "node --env-file=.env scripts/seedSupabaseSchemes.mjs"
   },
   "dependencies": {
     "@mendable/firecrawl-js": "^4.51.0",

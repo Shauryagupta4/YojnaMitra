@@ -12,9 +12,10 @@ import { runTinyFishSchemeDiscovery, classifySourceUrl } from '../lib/tinyfishSe
 import { fetchPagesWithFirecrawl } from '../lib/firecrawlFetch';
 import { fetchPagesWithTinyFish } from '../lib/tinyfishFetch'; // kept as fallback
 import { extractSchemesWithOpenRouter } from '../lib/openRouterProcessor';
-import { verifyAndDeduplicateSchemes } from '../lib/verification';
+import { verifyAndDeduplicateSchemes, evaluateProfileCriteria } from '../lib/verification';
 import { generateCacheKey, getCachedSearch, setCachedSearch } from '../lib/cache';
 import { checkRateLimit } from '../lib/rateLimiter';
+import { fetchActiveSchemesFromSupabase, saveDiscoveredSchemesToSupabase } from '../lib/supabaseSchemes';
 import {
   SchemeSearchResponse,
   CanonicalScheme,
@@ -444,7 +445,12 @@ export default async function handler(req: any, res: any) {
     state: profile.state,
     persona: profile.persona,
     query: profile.query,
-    educationLevel: profile.educationLevel
+    educationLevel: profile.educationLevel,
+    annualIncome: profile.annualIncome,
+    gender: profile.gender,
+    socialCategory: profile.socialCategory,
+    courseStream: profile.courseStream,
+    isDifferentlyAbled: profile.isDifferentlyAbled
   });
 
   if (!profile.refresh) {
@@ -460,10 +466,14 @@ export default async function handler(req: any, res: any) {
   let isPartial = false;
   let advisoryNote = '';
 
+  const tStart = Date.now();
+  console.log(`[Search Pipeline] Started search for state=${profile.state}, persona=${profile.persona}`);
+
   // 1. Run TinyFish Search across Central and State portals with configurable budget and pagination
   const maxQueriesBudget = 6;
   const maxFetchPagesBudget = 8;
 
+  const tDiscovery = Date.now();
   const discoveryResult = await runTinyFishSchemeDiscovery({
     state: profile.state,
     persona: profile.persona,
@@ -475,6 +485,7 @@ export default async function handler(req: any, res: any) {
       enablePagination: true
     }
   });
+  console.log(`[Search Pipeline] 1. TinyFish Discovery completed in ${Date.now() - tDiscovery}ms (items found: ${discoveryResult.items.length})`);
 
   if (discoveryResult.errors.length > 0) {
     errors.push(...discoveryResult.errors);
@@ -512,7 +523,31 @@ export default async function handler(req: any, res: any) {
     return (a.isOfficial === b.isOfficial) ? 0 : a.isOfficial ? -1 : 1;
   });
 
-  const candidateUrls = sortedForFetch.slice(0, maxFetchPagesBudget).map(item => item.url);
+  // Domain-diverse candidate URL selection: Pick at most 2 URLs per domain (e.g. 2 from State portal, 2 from NSP, 2 from Buddy4Study)
+  const domainCounts = new Map<string, number>();
+  const candidateUrls: string[] = [];
+  for (const item of sortedForFetch) {
+    try {
+      const u = new URL(item.url);
+      const host = u.hostname.toLowerCase();
+      const count = domainCounts.get(host) || 0;
+      if (count < 2) {
+        domainCounts.set(host, count + 1);
+        candidateUrls.push(item.url);
+        if (candidateUrls.length >= maxFetchPagesBudget) break;
+      }
+    } catch {}
+  }
+
+  // If budget remaining, fill with other eligible URLs
+  if (candidateUrls.length < maxFetchPagesBudget) {
+    for (const item of sortedForFetch) {
+      if (!candidateUrls.includes(item.url)) {
+        candidateUrls.push(item.url);
+        if (candidateUrls.length >= maxFetchPagesBudget) break;
+      }
+    }
+  }
 
   // If no HTML URLs found, take top search results
   if (candidateUrls.length === 0 && searchItems.length > 0) {
@@ -578,11 +613,15 @@ export default async function handler(req: any, res: any) {
         }
         // Exclude portals, guidelines, documents, and directory listings from becoming scheme cards
         const candidateType = classifyCandidate(cleaned, item.url, item.snippet);
-        if (candidateType !== 'individual_scheme') {
+        const isApexPortalScheme = item.url.toLowerCase().includes('scholarship.up.gov.in') ||
+          item.url.toLowerCase().includes('scholarships.gov.in') ||
+          /\b(up scholarship|uttar pradesh scholarship|dashmottar|shulk pratipoorti|post[- ]?matric.*(?:up|uttar pradesh))\b/i.test(cleaned);
+
+        if (candidateType !== 'individual_scheme' && !isApexPortalScheme) {
           rejectedItems.push({ title: item.title, url: item.url, reason: `Excluded ${candidateType} from becoming individual scheme card` });
           return false;
         }
-        return /scheme|scholarship|yojana|grant|fellowship|subsidy|welfare|loan|credit|cmegp|pmegp|mudra/i.test(cleaned);
+        return /scheme|scholarship|yojana|grant|fellowship|subsidy|welfare|loan|credit|cmegp|pmegp|mudra/i.test(cleaned) || isApexPortalScheme;
       })
       .map((item, idx) => {
         const cleanedName = sanitizeSchemeName(item.title)!;
@@ -594,8 +633,9 @@ export default async function handler(req: any, res: any) {
           profile.persona
         );
 
+        const stableSlug = (cleanedName || 'scheme').toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 70);
         return {
-          id: `tf-search-${idx}-${Date.now()}`,
+          id: `scheme-${(profile.state || 'central').toLowerCase().replace(/[^a-z0-9]/g, '')}-${stableSlug}`,
           name: cleanedName,
           candidateClassification: candidateType,
           level: 'Central',
@@ -638,11 +678,110 @@ export default async function handler(req: any, res: any) {
   let finalSchemes = verificationResult.schemes;
   let sourceType: 'live_retrieval' | 'fallback_cache' = 'live_retrieval';
 
-  // 7. Handle 0 items honesty (Never silently return static fallback records as live results)
+  // 7. Supabase Secondary Strategy:
+  // Live website search always executes first. If live search yields 0 items, check Supabase as secondary fallback.
+  // If live search finds schemes, merge any other active verified programs already in Supabase without duplicates.
+  const safeFetchSupabase = (p: any) =>
+    Promise.race([
+      fetchActiveSchemesFromSupabase(p),
+      new Promise<null>(resolve => setTimeout(() => resolve(null), 2500))
+    ]);
+
   if (finalSchemes.length === 0) {
-    isPartial = true;
-    warnings.push('Live search did not discover any verified individual schemes meeting authenticity standards for this query.');
+    try {
+      const supabaseSchemes = await safeFetchSupabase({
+        state: profile.state,
+        persona: profile.persona,
+        query: profile.query
+      });
+      if (supabaseSchemes && supabaseSchemes.length > 0) {
+        finalSchemes = supabaseSchemes;
+        sourceType = 'fallback_cache';
+        advisoryNote = `Live web discovery returned 0 fresh items; displaying ${supabaseSchemes.length} verified programs from national register for ${profile.state}.`;
+      } else {
+        isPartial = true;
+        warnings.push('Live search did not discover any verified individual schemes meeting authenticity standards for this query.');
+      }
+    } catch (sbErr) {
+      console.warn('[Supabase Fallback Exception]:', sbErr);
+      isPartial = true;
+      warnings.push('Live search did not discover any verified individual schemes meeting authenticity standards for this query.');
+    }
+  } else {
+    try {
+      const existingDbSchemes = await safeFetchSupabase({
+        state: profile.state,
+        persona: profile.persona,
+        query: profile.query
+      });
+      if (existingDbSchemes && existingDbSchemes.length > 0) {
+        const liveSchemeNames = new Set(finalSchemes.map(s => s.name.toLowerCase()));
+        for (const dbScheme of existingDbSchemes) {
+          if (!liveSchemeNames.has(dbScheme.name.toLowerCase())) {
+            finalSchemes.push(dbScheme);
+            liveSchemeNames.add(dbScheme.name.toLowerCase());
+          }
+        }
+      }
+    } catch (mergeErr) {
+      console.warn('[Supabase Merge Exception]:', mergeErr);
+    }
   }
+
+  // Strictly re-evaluate every scheme's eligibility against the incoming user profile
+  finalSchemes = finalSchemes.map(s => {
+    const rawCriteria = [
+      ...(s.eligibility?.criteriaSummary || []),
+      ...(s.eligibility?.reasons || []),
+      s.description || '',
+      s.benefits || ''
+    ];
+
+    const evaluation = evaluateProfileCriteria({
+      schemeName: s.name,
+      description: s.description,
+      criteriaSummary: s.eligibility?.criteriaSummary && s.eligibility.criteriaSummary.length > 0
+        ? s.eligibility.criteriaSummary
+        : rawCriteria,
+      reasons: s.eligibility?.reasons || [],
+      userProfile: {
+        ...profile,
+        annualIncome: profile.annualIncome,
+        socialCategory: profile.socialCategory,
+        gender: profile.gender,
+        state: profile.state,
+        educationLevel: profile.educationLevel,
+        courseStream: profile.courseStream,
+        isDifferentlyAbled: profile.isDifferentlyAbled
+      },
+      targetState: profile.state
+    });
+
+    const isMatched = evaluation.status === 'matched';
+    const isNotMatched = evaluation.status === 'not_matched';
+
+    return {
+      ...s,
+      eligibilityMatch: evaluation.status,
+      eligibilityStatus: isNotMatched ? 'not_eligible' : 'potentially_eligible',
+      eligibility: {
+        ...(s.eligibility || {}),
+        criteriaSummary: s.eligibility?.criteriaSummary && s.eligibility.criteriaSummary.length > 0
+          ? s.eligibility.criteriaSummary
+          : rawCriteria,
+        status: isNotMatched ? 'not_eligible' : 'potentially_eligible',
+        matchState: evaluation.status,
+        reasons: isNotMatched
+          ? evaluation.unmatchedReasons
+          : (isMatched && evaluation.matchedReasons.length > 0
+              ? evaluation.matchedReasons
+              : (s.eligibility?.reasons || evaluation.unknownReasons)),
+        missingOrCautionCriteria: isNotMatched
+          ? evaluation.unmatchedReasons
+          : (s.eligibility?.missingOrCautionCriteria || [])
+      }
+    };
+  });
 
   const centralCount = finalSchemes.filter(s => s.level === 'Central').length;
   const stateCount = finalSchemes.filter(s => s.level === 'State').length;
@@ -742,6 +881,13 @@ export default async function handler(req: any, res: any) {
   // Cache response if at least 1 scheme found
   if (responsePayload.success && !profile.refresh) {
     setCachedSearch(cacheKey, responsePayload);
+  }
+
+  // Persist newly discovered & verified schemes to Supabase with automatic expiry tracking
+  if (finalSchemes.length > 0) {
+    saveDiscoveredSchemesToSupabase(finalSchemes, profile.state, profile.persona).catch(err => {
+      console.warn('[Supabase Background Upsert Error]:', err);
+    });
   }
 
   return res.status(200).json(responsePayload);

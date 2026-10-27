@@ -113,6 +113,7 @@ const INVALID_SCHEME_NAME_PATTERNS = [
   /^(operational|revised|implementation|administrative|draft|final)\s+guidelines?\b/i,
   /guidelines?\s*(?:for|of|\d{4}|\(\d{4}\))/i,
   /^guidelines?\s*[-–:]/i,
+  /^(rules?\s+for\s+(?:the\s+)?award\s*(?:for|of)?|rules?\s+and\s+regulations?\s+for|scheme\s+rules?\s+for)\b/i,
   /^(guidelines?|circulars?|notifications?|resolutions?|orders?)\s*[-–:]/i,
   // Parliamentary, legislative, and standing committee reports
   /\b(standing committee|lok sabha|rajya sabha|sansad|parliamentary committee|committee on)\b/i,
@@ -170,7 +171,9 @@ const INVALID_SCHEME_NAME_PATTERNS = [
   // Payment status updates, installment releases, and application news
   /\b(update\s*:|updates?\s*[-–:]|installment\s+released|installment\s+status|payment\s+status|second\s+installment|first\s+installment|check\s+payment|payment\s+update|status\s+released)\b/i,
   // Multi-scholarship global/college listings and portals
-  /\b(live scholarships?|global scholarships?|all scholarships?|private scholarships?)\b/i
+  /\b(live scholarships?|global scholarships?|all scholarships?|private scholarships?)\b/i,
+  // User manuals, FAQs, author archives, login endpoints, and utility links
+  /\b(author at|scholarship alerts|user manual for students|application login|digitalseva connect|scholarship eligibility check|forgot application id|can we complete nsp|without face authentication|buddy4study articles|portal - last date|scheme rules revised|how to apply|application open & how|archives - scholarship)\b/i
 ];
 
 /**
@@ -214,12 +217,19 @@ export function classifyCandidate(
   }
 
   // 2. News / Media / Articles / Academic Papers / Third-party Explainers
-  if (
-    /pib\.gov\.in|\/press-release|\/news\/|\/article\/|\/pressrelease|\/post\/|\/blog\//i.test(lowerUrl) ||
-    /buddy4study|careers360|jagranjosh|timesofindia|hindustantimes|thehindu|indianexpress|vikaspedia|ndtv|theprint|amarujala|dainikbhaskar|collegedunia|shiksha|news18|livehindustan|abplive|indiatoday|zeenews|worldolympiads|indiascholarships|findmycollege|collegemarker|workassist|govtschemes|sarkariyojana|sarkariyojnaa|sarkariresult|vajiramandravi|sagepub|researchgate|jstor|sciencedirect|springer|quora|edunexttechnologies|justdial|indiamart|tradeindia|sulekha|quikr|howdoiindia|cscportal|\.in\.net/i.test(lowerUrl) ||
-    /\b(press release|cabinet approves|news update|latest news|application dates announced|how to apply|eligibility criteria revealed|check eligibility|last date to apply|registration begins|students to get|government announces|know how to apply|direct link to apply|installment released|second installment|first installment|payment status|check payment status|critical review of|a review of|review of [a-z\s]+ schemes?|a study on|empirical study|research paper|journal of)\b/i.test(lowerName)
-  ) {
-    return 'news_or_article';
+  // Dedicated scholarship directory profiles (e.g. buddy4study.com/scholarship/...)
+  // that have a specific scheme title are individual scheme candidates, NOT generic news articles!
+  const isDedicatedScholarshipProfile = /buddy4study\.com\/scholarship\b/i.test(lowerUrl) && hasSpecificScheme;
+  const isNewsOrMediaHeadline = /\b(press release|cabinet approves|news update|latest news|application dates announced|how to apply|eligibility criteria revealed|check eligibility|last date to apply|registration begins|students to get|government announces|know how to apply|direct link to apply|installment released|second installment|first installment|payment status|check payment status|critical review of|a review of|review of [a-z\s]+ schemes?|a study on|empirical study|research paper|journal of)\b/i.test(lowerName);
+
+  if (!isDedicatedScholarshipProfile) {
+    if (
+      /pib\.gov\.in|\/press-release|\/news\/|\/article\/|\/pressrelease|\/post\/|\/blog\//i.test(lowerUrl) ||
+      (!hasSpecificScheme && /buddy4study|careers360|jagranjosh|timesofindia|hindustantimes|thehindu|indianexpress|vikaspedia|ndtv|theprint|amarujala|dainikbhaskar|collegedunia|shiksha|news18|livehindustan|abplive|indiatoday|zeenews|worldolympiads|indiascholarships|findmycollege|collegemarker|workassist|govtschemes|sarkariyojana|sarkariyojnaa|sarkariresult|vajiramandravi|sagepub|researchgate|jstor|sciencedirect|springer|quora|edunexttechnologies|justdial|indiamart|tradeindia|sulekha|quikr|howdoiindia|cscportal|\.in\.net/i.test(lowerUrl)) ||
+      isNewsOrMediaHeadline
+    ) {
+      return 'news_or_article';
+    }
   }
 
   // Parse URL components
@@ -459,6 +469,13 @@ export function isInvalidSchemeName(name: string | null | undefined): boolean {
   const trimmed = name.trim();
   if (trimmed.length < 5) return true;
 
+  // Reject raw URLs
+  if (/^https?:\/\//i.test(trimmed)) return true;
+
+  // Reject generic portal names and bare state government titles
+  if (/^(up|uttar pradesh|bihar|delhi|odisha|karnataka|punjab|haryana|rajasthan|assam|gujarat)\s*[-–:]\s*[a-z\s]*government$/i.test(trimmed)) return true;
+  if (/^(national\s*:\s*nsp|national scholarship portal\s*:\s*nsp|nsp\s*:\s*national)$/i.test(trimmed)) return true;
+
   // Reject pure file extensions or filenames
   if (/\.(pdf|docx?|xlsx?|html?|txt|csv)$/i.test(trimmed)) return true;
 
@@ -648,6 +665,9 @@ export function extractNamedSchemesFromText(text: string): string[] {
     { pattern: /\b(reimbursement of tuition fee.*(?:sc|st|obc|minority)|tuition fee reimbursement.*public school)\b/i, name: 'Reimbursement of Tuition Fee for SC/ST/OBC/Minority Students in Public Schools' },
     { pattern: /\b(merit scholarship.*(?:sc|st|obc|minority)|delhi merit scholarship)\b/i, name: 'Merit Scholarship for SC/ST/OBC/Minority Students (Delhi)' },
     { pattern: /\b(dr\.?\s*b\.?r\.?\s*ambedkar state award)\b/i, name: 'Dr. B.R. Ambedkar State Award for SC/ST/OBC/Minorities (Delhi)' },
+    { pattern: /\b(up scholarship|uttar pradesh scholarship|dashmottar|shulk pratipoorti|post[- ]?matric.*(?:up|uttar pradesh)|up post[- ]?matric)\b/i, name: 'UP Post-Matric Scholarship and Fee Reimbursement Scheme' },
+    { pattern: /\b(up pre[- ]?matric|pre[- ]?matric.*(?:up|uttar pradesh))\b/i, name: 'UP Pre-Matric Scholarship Scheme' },
+    { pattern: /\b(abhyuday|mukhyamantri abhyudaya)\b/i, name: 'Mukhyamantri Abhyudaya Yojana (UP)' },
     { pattern: /\b(jai bhim mukhyamantri pratibha vikas)\b/i, name: 'Jai Bhim Mukhyamantri Pratibha Vikas Yojana' },
     { pattern: /\b(financial assistance for purchase of books and stationery)\b/i, name: 'Financial Assistance for Purchase of Books and Stationery (Delhi)' },
     { pattern: /\b(up dashmottar|dashmottar scholarship|post[- ]matric scholarship.*uttar pradesh)\b/i, name: 'Uttar Pradesh Dashmottar (Post-Matric) Scholarship and Fee Reimbursement' },

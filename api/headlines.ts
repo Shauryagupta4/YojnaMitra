@@ -32,22 +32,21 @@ export default async function handler(req: any, res: any) {
     });
   }
 
-  const prompt = `You are India's National Welfare Telemetry & Live Scheme Headline Agent.
-Generate 8 to 10 verified, currently open, latest central schemes and scholarships across India for the moving headline ticker.
-ONLY Central / All-India schemes (e.g. NSP AY 2025-26, AICTE Pragati, PM-KISAN, PMFBY, NFSA, PMAY 2.0, Ayushman Bharat PM-JAY, Mudra Tarun Plus).
-STRICTLY CURRENT & ACTIVE for AY 2025-26 / 2026. Absolutely ZERO expired schemes.
-Assign tagColor: either "#00F5D4" or "#FFE600".
+  const prompt = `You are a Senior Editor at India's National Public Information Bureau.
+Write 8 to 10 verified, authentic, currently active Central and State scheme/scholarship updates for a live public information ticker.
+Write in clear, professional, human editorial language — absolutely no robotic jargon like "ACTIVE // NO EXPIRY", "telemetry", or repetitive acronym dumps.
+Focus on real current programs: UP Scholarship, National Scholarship Portal (NSP), Ayushman Bharat, PM-KISAN, AICTE Pragati, PM Mudra Yojana, NFSA, PMAY.
 
-Output JSON format strictly:
+Format strictly as JSON:
 {
   "headlines": [
     {
       "id": "hl-1",
-      "tag": "ACTIVE AY 2025-26",
-      "tagColor": "#00F5D4",
-      "title": "National Scholarship Portal (NSP / PM-USP)",
-      "detail": "Central OTR Registration Live on scholarships.gov.in (Full Tuition Fee Reimbursement + Maintenance Allowance for SC/ST/OBC)",
-      "portal": "scholarships.gov.in"
+      "tag": "UTTAR PRADESH",
+      "tagColor": "#FF9933",
+      "title": "UP Post-Matric Scholarship",
+      "detail": "Online registration and Aadhaar-linked verification currently open for students on scholarship.up.gov.in.",
+      "portal": "scholarship.up.gov.in"
     }
   ]
 }`;

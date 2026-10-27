@@ -92,9 +92,9 @@ CRITICAL EXTRACTION GUIDELINES:
    - If a confirmed citizen application endpoint is not established in the text, set "applicationUrl": null. NEVER fabricate an application link.
 
 8. DEADLINE INTEGRITY:
-   - Extract the actual deadline ONLY if explicitly established in the evidence (e.g., "31-10-2026").
-   - If stated open/active, set "deadlineStatus": "open".
-   - If closed or past, set "deadlineStatus": "closed".
+   - Extract the actual deadline date ONLY if explicitly established in the evidence (e.g., "31-10-2026").
+   - If closed, expired, past, or text states applications/registrations are closed, set "deadlineStatus": "closed".
+   - If stated currently open/active with an active future date, set "deadlineStatus": "open".
    - If not explicitly established, set "deadline": null and "deadlineStatus": "unknown".
    - DO NOT fabricate fake deadlines or assume unknown means open.
 
@@ -139,9 +139,9 @@ Output JSON format strictly matching this structure:
   "advisoryNote": "1-2 sentence personalized advice grounded in findings"
 }`;
 
-  // Assemble bounded context text
+  // Assemble bounded context text (top 6 snippets and top 2 pages for fast, bounded LLM reasoning)
   const searchEvidence = searchResults
-    .slice(0, 14)
+    .slice(0, 6)
     .map(
       (s, idx) => `
 [Result #${idx + 1}] (${s.searchScope.toUpperCase()})
@@ -155,14 +155,14 @@ Snippet: ${s.snippet}
     .join('\n');
 
   const pageEvidence = fetchedPages
-    .slice(0, 8)
+    .slice(0, 2)
     .map(
       (p, idx) => `
 [Fetched Page #${idx + 1}]
 URL: ${p.url}
 Title: ${p.title || 'Untitled'}
 Content:
-${p.text.slice(0, 2800)}
+${p.text.slice(0, 1500)}
 `
     )
     .join('\n\n');
@@ -231,19 +231,8 @@ export async function extractSchemesWithOpenRouter(
 
   const { system, user } = buildExtractionPrompt(profile, searchResults, fetchedPages);
 
-  // Free model trial order: configured model, followed by verified fast free model (cap at 2 attempts to prevent pipeline hang)
-  const candidateModels = [configuredModel];
-  const verifiedFreeModels = [
-    'google/gemma-4-26b-a4b-it:free',
-    'openrouter/free'
-  ];
-  for (const m of verifiedFreeModels) {
-    if (!candidateModels.includes(m)) {
-      candidateModels.push(m);
-    }
-  }
-
-  const modelsToTry = candidateModels.slice(0, 2);
+  // Single fast attempt on configured free model with strict 7500ms timeout
+  const modelsToTry = [configuredModel];
   let lastError = '';
 
   for (const modelToTry of modelsToTry) {
@@ -256,8 +245,8 @@ export async function extractSchemesWithOpenRouter(
         model: modelToTry,
         apiKey,
         temperature: 0.1,
-        maxTokens: 4000,
-        timeoutMs: 12000
+        maxTokens: 1800,
+        timeoutMs: 7500
       });
 
       // Strip thinking tags if present from reasoning models

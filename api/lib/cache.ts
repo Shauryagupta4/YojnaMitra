@@ -14,13 +14,22 @@ export function generateCacheKey(params: {
   query?: string;
   category?: string;
   educationLevel?: string;
+  annualIncome?: number;
+  gender?: string;
+  socialCategory?: string;
+  courseStream?: string;
+  isDifferentlyAbled?: boolean;
 }): string {
   const st = (params.state || 'all').toLowerCase().trim();
   const per = (params.persona || 'student').toLowerCase().trim();
   const q = (params.query || '').toLowerCase().trim();
-  const cat = (params.category || 'all').toLowerCase().trim();
+  const cat = (params.category || params.socialCategory || 'all').toLowerCase().trim();
   const edu = (params.educationLevel || 'any').toLowerCase().trim();
-  return `${st}:${per}:${cat}:${edu}:${q}`;
+  const inc = typeof params.annualIncome === 'number' ? params.annualIncome : 0;
+  const gen = (params.gender || 'all').toLowerCase().trim();
+  const stream = (params.courseStream || 'all').toLowerCase().trim();
+  const pwd = params.isDifferentlyAbled ? 'pwd' : 'nopwd';
+  return `${st}:${per}:${cat}:${edu}:${inc}:${gen}:${stream}:${pwd}:${q}`;
 }
 
 export function getCachedSearch(key: string): SchemeSearchResponse | null {

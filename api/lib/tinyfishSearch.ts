@@ -150,35 +150,57 @@ export function buildSearchQueries(
   // ==========================================
   else if (persona === 'student') {
     queries.push({
-      query: `site:scholarships.gov.in OR site:myscheme.gov.in central sector post matric scholarship 2025 2026`,
+      query: `site:scholarships.gov.in post matric scholarship 2025 2026 OTR`,
       scope: 'central',
-      description: 'National Scholarship Portal flagship schemes'
+      description: 'National Scholarship Portal official portal'
     });
     queries.push({
-      query: `National Scholarship Portal AICTE Pragati Saksham UGC CSSS PM-YASASVI scholarships students`,
+      query: `site:buddy4study.com "National Scholarship Portal" NSP Central Sector Scheme AICTE Pragati`,
       scope: 'central',
-      description: 'Central higher education and merit scholarships'
+      description: 'Buddy4Study verified National Scholarship Portal directory'
+    });
+    queries.push({
+      query: `site:buddy4study.com national scholarship 2025 2026 college student eligibility`,
+      scope: 'central',
+      description: 'Buddy4Study active national & CSR scholarships'
     });
 
     if (!isAllIndia && normState) {
       const apexPortal = stateMeta?.knownApexDomains?.[0] || `${normState.toLowerCase().replace(/\s+/g, '')}.gov.in`;
-      const deptDesc = stateMeta?.departments?.scholarship || `${normState} Higher Education Social Welfare Department`;
 
-      queries.push({
-        query: `site:${apexPortal} post matric scholarship higher education welfare scheme`,
-        scope: 'state',
-        description: `${normState} official scholarship portal`
-      });
-      queries.push({
-        query: `"${normState}" ${deptDesc} scholarship scheme tuition fee reimbursement students 2025 2026`,
-        scope: 'state',
-        description: `${normState} department scholarship schemes`
-      });
-      queries.push({
-        query: `"${normState}" post matric scholarship online application registration portal .gov.in`,
-        scope: 'state',
-        description: `${normState} scholarship application portal`
-      });
+      if (normState === 'Uttar Pradesh') {
+        queries.push({
+          query: `UP Scholarship 2025 2026 scholarship.up.gov.in online registration`,
+          scope: 'state',
+          description: `Uttar Pradesh official scholarship application portal`
+        });
+        queries.push({
+          query: `site:buddy4study.com "UP Scholarship" 2025 2026 post matric eligibility last date`,
+          scope: 'state',
+          description: `Buddy4Study UP scholarship verified directory`
+        });
+        queries.push({
+          query: `UP post matric scholarship fee reimbursement 2025 2026 scholarship.up.gov.in`,
+          scope: 'state',
+          description: `UP Post-Matric scholarship & fee reimbursement`
+        });
+      } else {
+        queries.push({
+          query: `"${normState}" post matric scholarship online application 2025 2026 ${apexPortal}`,
+          scope: 'state',
+          description: `${normState} official scholarship portal`
+        });
+        queries.push({
+          query: `site:buddy4study.com "${normState}" scholarship 2025 2026 eligibility application`,
+          scope: 'state',
+          description: `Buddy4Study ${normState} active scholarships`
+        });
+        queries.push({
+          query: `"${normState}" scholarship scheme tuition fee reimbursement students 2025 2026`,
+          scope: 'state',
+          description: `${normState} department scholarship schemes`
+        });
+      }
     }
   }
 
@@ -259,8 +281,8 @@ export function buildSearchQueries(
   // ==========================================
   if (customQuery && customQuery.trim().length > 1) {
     const qClean = customQuery.trim().slice(0, 80);
-    queries.push({
-      query: `${isAllIndia ? '' : `"${normState}" `}${qClean} government scheme portal guidelines`,
+    queries.unshift({
+      query: `${qClean} 2025 2026 online portal registration`,
       scope: isAllIndia ? 'central' : 'state',
       description: 'User-specified focus query'
     });
@@ -361,48 +383,24 @@ export async function runTinyFishSchemeDiscovery(params: {
   let queriesRunCount = 0;
   const rawResults: Array<{ scope: 'central' | 'state'; data: TinyFishSearchResponse }> = [];
 
-  // Execute queries in controlled batches of 2 to prevent network socket starvation
-  const batchSize = 2;
-  for (let i = 0; i < plannedQueries.length; i += batchSize) {
-    const batch = plannedQueries.slice(i, i + batchSize);
-    const settled = await Promise.allSettled(
-      batch.map(async q => {
-        queriesAttempted.push(q.query);
-        queriesRunCount++;
-        const res = await executeTinyFishSearch(q.query, apiKey, 1, budgetConfig.timeoutMs);
-        return { scope: q.scope, data: res, originalQuery: q.query };
-      })
-    );
+  // Execute all planned queries concurrently in parallel for ultra-fast latency (1-2s total)
+  const settled = await Promise.allSettled(
+    plannedQueries.map(async q => {
+      queriesAttempted.push(q.query);
+      queriesRunCount++;
+      const res = await executeTinyFishSearch(q.query, apiKey, 1, Math.min(6000, budgetConfig.timeoutMs));
+      return { scope: q.scope, data: res, originalQuery: q.query };
+    })
+  );
 
-    for (const s of settled) {
-      if (s.status === 'fulfilled') {
-        if (s.value.data.error) {
-          errors.push(s.value.data.error);
-        }
-        rawResults.push({ scope: s.value.scope, data: s.value.data });
-
-        // If pagination is enabled and the query returned a full page of results (e.g. >= 5 items),
-        // and we haven't exceeded the query budget, follow pagination for page 2!
-        if (
-          budgetConfig.enablePagination &&
-          s.value.data.results &&
-          s.value.data.results.length >= 6 &&
-          queriesRunCount < budgetConfig.maxQueries + 2
-        ) {
-          try {
-            queriesAttempted.push(`${s.value.originalQuery} [Page 2]`);
-            queriesRunCount++;
-            const p2Res = await executeTinyFishSearch(s.value.originalQuery, apiKey, 2, budgetConfig.timeoutMs);
-            if (p2Res.results && p2Res.results.length > 0) {
-              rawResults.push({ scope: s.value.scope, data: p2Res });
-            }
-          } catch {
-            // Pagination failure is non-fatal
-          }
-        }
-      } else {
-        errors.push(`Search batch failure: ${s.reason}`);
+  for (const s of settled) {
+    if (s.status === 'fulfilled') {
+      if (s.value.data.error) {
+        errors.push(s.value.data.error);
       }
+      rawResults.push({ scope: s.value.scope, data: s.value.data });
+    } else {
+      errors.push(`Search query failure: ${s.reason}`);
     }
   }
 

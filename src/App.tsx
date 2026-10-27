@@ -23,7 +23,8 @@ import {
   UserPlus,
   LogOut,
   Lock,
-  Activity
+  Activity,
+  Bookmark
 } from 'lucide-react';
 import { AuthPage, UserSession } from './components/AuthPage';
 import { logOutFirebase } from './services/firebaseClient';
@@ -161,6 +162,9 @@ export function App() {
   const [isUdyamRegistered, setIsUdyamRegistered] = useState<boolean>(false);
   const [isWomenLed, setIsWomenLed] = useState<boolean>(false);
 
+  // User Search Query / Focus Keyword (e.g. "UP Scholarship", "Pragati", etc.)
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
   // Pipeline execution & results
   const [isProcessing, setIsProcessing] = useState(false);
   const [searchStage, setSearchStage] = useState<number>(1);
@@ -175,6 +179,33 @@ export function App() {
   const [showDiagnosticsModal, setShowDiagnosticsModal] = useState<boolean>(false);
   const [unverifiedCandidatesList, setUnverifiedCandidatesList] = useState<any[]>([]);
 
+  // Bookmarked / Saved Schemes (Persisted locally across searches)
+  const [bookmarkedSchemes, setBookmarkedSchemes] = useState<MatchedScheme[]>(() => {
+    try {
+      const saved = localStorage.getItem('ym_bookmarked_schemes');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [showOnlyBookmarks, setShowOnlyBookmarks] = useState<boolean>(false);
+
+  const toggleBookmark = (item: MatchedScheme) => {
+    setBookmarkedSchemes(prev => {
+      const exists = prev.some(b => b.scheme.id === item.scheme.id);
+      let updated: MatchedScheme[];
+      if (exists) {
+        updated = prev.filter(b => b.scheme.id !== item.scheme.id);
+      } else {
+        updated = [item, ...prev];
+      }
+      try {
+        localStorage.setItem('ym_bookmarked_schemes', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
+
   // Smooth stage progression animation while discovery is running
   React.useEffect(() => {
     if (!isProcessing) {
@@ -182,16 +213,14 @@ export function App() {
       return;
     }
 
-    const t1 = setTimeout(() => setSearchStage(prev => Math.max(prev, 2)), 1100);
-    const t2 = setTimeout(() => setSearchStage(prev => Math.max(prev, 3)), 2800);
-    const t3 = setTimeout(() => setSearchStage(prev => Math.max(prev, 4)), 5500);
-    const t4 = setTimeout(() => setSearchStage(prev => Math.max(prev, 5)), 9000);
+    const t1 = setTimeout(() => setSearchStage(prev => Math.max(prev, 2)), 1200);
+    const t2 = setTimeout(() => setSearchStage(prev => Math.max(prev, 3)), 3200);
+    const t3 = setTimeout(() => setSearchStage(prev => Math.max(prev, 4)), 6000);
 
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
-      clearTimeout(t4);
     };
   }, [isProcessing]);
 
@@ -342,6 +371,7 @@ export function App() {
       setBusinessType('');
       setBusinessCategory('');
     }
+    setSearchQuery('');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -473,81 +503,9 @@ export function App() {
       return;
     }
 
-    if (!isStudent && !isFarmer) {
-      setErrorMessage(`Supported Tracks: YojanaMitra currently supports Education (Students) and Agriculture (Farmers). Please choose Student or Farmer to discover verified government aid.`);
-      return;
-    }
 
-    // 2. Mandatory Profile / Search criteria verification - cannot proceed with completely blank profile
-    const cleanSearchQuery = '';
-
-    const hasStudentInput = Boolean(
-      educationLevel ||
-      courseStream ||
-      studentCategory ||
-      studentGender ||
-      (typeof studentAge === 'number' && studentAge > 0) ||
-      (typeof studentIncome === 'number' && studentIncome > 0) ||
-      isDifferentlyAbled ||
-      cleanSearchQuery
-    );
-
-    const hasFarmerInput = Boolean(
-      farmerType ||
-      farmerCropSeason ||
-      farmerCategory ||
-      farmerGender ||
-      (typeof farmerAge === 'number' && farmerAge > 0) ||
-      (typeof farmerIncome === 'number' && farmerIncome > 0) ||
-      hasKccCard ||
-      hasCropInsurance ||
-      cleanSearchQuery
-    );
-
-    const hasCitizenInput = Boolean(
-      familyRationType ||
-      housingCondition ||
-      citizenOccupation ||
-      citizenCategory ||
-      citizenGender ||
-      (typeof citizenAge === 'number' && citizenAge > 0) ||
-      (typeof citizenIncome === 'number' && citizenIncome > 0) ||
-      hasAyushmanCard ||
-      isDifferentlyAbled ||
-      cleanSearchQuery
-    );
-
-    const hasBusinessInput = Boolean(
-      businessType ||
-      loanNeed ||
-      businessCategory ||
-      businessGender ||
-      (typeof businessAge === 'number' && businessAge > 0) ||
-      (typeof businessTurnover === 'number' && businessTurnover > 0) ||
-      isUdyamRegistered ||
-      isWomenLed ||
-      cleanSearchQuery
-    );
-
-    const hasTrackInput = isStudent
-      ? hasStudentInput
-      : isFarmer
-      ? hasFarmerInput
-      : isCitizen
-      ? hasCitizenInput
-      : hasBusinessInput;
-
-    if (!hasTrackInput) {
-      const primaryHint = isStudent
-        ? 'Current Education Level or Category'
-        : isFarmer
-        ? 'Landholding Type or Crop Season'
-        : isCitizen
-        ? 'Family Ration Card Status or Housing Condition'
-        : 'Enterprise Classification or Credit Need';
-      setErrorMessage(`Input mandatory: Please specify your ${primaryHint} to proceed with searching.`);
-      return;
-    }
+    // Optional user search query (State selection is the only mandatory requirement)
+    const cleanSearchQuery = searchQuery.trim();
 
     // Rate-limiting check to prevent DDoS / API token exhaustion
     const now = Date.now();
@@ -571,10 +529,16 @@ export function App() {
     const rawAge = isStudent ? studentAge : isFarmer ? farmerAge : isCitizen ? citizenAge : businessAge;
     const rawIncome = isStudent ? studentIncome : isFarmer ? farmerIncome : isCitizen ? citizenIncome : businessTurnover;
 
+    const parsedIncome = typeof rawIncome === 'number' && !isNaN(rawIncome)
+      ? rawIncome
+      : (typeof rawIncome === 'string' && rawIncome.trim() !== '' && !isNaN(Number(rawIncome))
+          ? Number(rawIncome)
+          : undefined);
+
     // Validate demographics to prevent business logic bypass (e.g. negative income, impossible age)
     const validatedDemo = sanitizeDemographics({
       age: typeof rawAge === 'number' && rawAge > 0 ? rawAge : undefined,
-      annualIncome: typeof rawIncome === 'number' && rawIncome > 0 ? rawIncome : 150000
+      annualIncome: parsedIncome !== undefined ? Math.max(0, parsedIncome) : 150000
     });
 
     const rawCategory = (isStudent ? studentCategory : isFarmer ? farmerCategory : isCitizen ? citizenCategory : businessCategory) || 'General';
@@ -672,9 +636,27 @@ export function App() {
       // Set clean human success message reflecting true match status
       const trackName = isStudent ? 'scholarships' : isFarmer ? 'agricultural schemes' : isCitizen ? 'citizen & family welfare schemes' : 'business loans & subsidies';
       
+      const seenEligibleTitles = new Set<string>();
       const trulyEligible = prioritized.filter(m => {
         if (m.scheme.verificationStatus === 'unverified_candidate' || m.scheme.verificationStatus === 'rejected') return false;
         if (m.scheme.eligibilityMatch === 'not_matched' || m.scheme.eligibilityStatus === 'not_eligible' || (m.scheme.eligibility as any)?.matchState === 'not_matched') return false;
+        
+        const combinedReasons = [
+          ...(m.qualificationReasons || []),
+          ...(m.missingOrCautionCriteria || []),
+          ...((m.scheme.eligibility as any)?.reasons || [])
+        ].join(' ').toLowerCase();
+
+        if (
+          combinedReasons.includes('exceeds scheme limit') ||
+          combinedReasons.includes('profile indicates male') ||
+          combinedReasons.includes('restricted to female') ||
+          combinedReasons.includes('reserved for differently-abled') ||
+          combinedReasons.includes('standard applicant profile not eligible')
+        ) {
+          return false;
+        }
+        if (m.scheme.deadlineStatus === 'closed') return false;
         const schemeBenefit = (m.scheme.benefit || (m.scheme as any).benefits || '') as string;
         const schemeApply = m.scheme.applyUrl || (m.scheme as any).applicationUrl;
         if (m.scheme.verificationStatus === 'partially_verified' && schemeBenefit.toLowerCase().includes('not verified from primary source') && !schemeApply) return false;
@@ -682,6 +664,11 @@ export function App() {
         if (isFarmer && m.scheme.category !== 'Agriculture') return false;
         if (isBusiness && !['Business & MSME', 'Employment'].includes(m.scheme.category)) return false;
         if (isCitizen && !['Healthcare', 'Housing', 'Food & Civil Supplies', 'Women & Child', 'Social Security'].includes(m.scheme.category)) return false;
+        
+        // Deduplicate schemes with identical clean titles
+        const cleanTitle = (m.scheme.name || '').toLowerCase().replace(/[^a-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+        if (seenEligibleTitles.has(cleanTitle)) return false;
+        seenEligibleTitles.add(cleanTitle);
         return true;
       });
 
@@ -724,6 +711,7 @@ export function App() {
     }
   };
 
+  const seenFilteredTitles = new Set<string>();
   const filteredSchemes = matchedSchemes.filter(m => {
     // Strictly isolate unverified candidates from the verified schemes list
     if (m.scheme.verificationStatus === 'unverified_candidate' || m.scheme.verificationStatus === 'rejected') return false;
@@ -736,6 +724,25 @@ export function App() {
     ) {
       return false;
     }
+
+    const combinedReasons = [
+      ...(m.qualificationReasons || []),
+      ...(m.missingOrCautionCriteria || []),
+      ...((m.scheme.eligibility as any)?.reasons || [])
+    ].join(' ').toLowerCase();
+
+    if (
+      combinedReasons.includes('exceeds scheme limit') ||
+      combinedReasons.includes('profile indicates male') ||
+      combinedReasons.includes('restricted to female') ||
+      combinedReasons.includes('reserved for differently-abled') ||
+      combinedReasons.includes('standard applicant profile not eligible')
+    ) {
+      return false;
+    }
+
+    // Exclude schemes whose application window has ended/closed from active results
+    if (m.scheme.deadlineStatus === 'closed') return false;
 
     // Exclude partially verified circulars/notices with unverified benefit and no application portal
     const schemeBenefit = (m.scheme.benefit || (m.scheme as any).benefits || '') as string;
@@ -754,9 +761,21 @@ export function App() {
     if (selectedPersona === 'business' && !['Business & MSME', 'Employment'].includes(m.scheme.category)) return false;
     if (selectedPersona === 'citizen' && !['Healthcare', 'Housing', 'Food & Civil Supplies', 'Women & Child', 'Social Security'].includes(m.scheme.category)) return false;
 
+    // Deduplicate schemes with identical clean titles
+    const cleanTitle = (m.scheme.name || '').toLowerCase().replace(/[^a-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (seenFilteredTitles.has(cleanTitle)) return false;
+    seenFilteredTitles.add(cleanTitle);
+
     if (selectedCategoryFilter === 'All') return true;
     return m.scheme.category === selectedCategoryFilter;
   });
+
+  const displayedSchemes = showOnlyBookmarks
+    ? bookmarkedSchemes.filter(m => {
+        if (selectedCategoryFilter === 'All') return true;
+        return m.scheme.category === selectedCategoryFilter;
+      })
+    : filteredSchemes;
 
   const activeState = selectedPersona === 'student' ? studentState : selectedPersona === 'farmer' ? farmerState : selectedPersona === 'citizen' ? citizenState : businessState;
   const isFallbackMode = matchedSchemes.length > 0 && matchedSchemes.some(m => m.scheme.sourceType === 'fallback_cache');
@@ -870,6 +889,33 @@ export function App() {
               </button>
             )}
 
+            {bookmarkedSchemes.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setShowOnlyBookmarks(!showOnlyBookmarks);
+                  const el = document.getElementById('results-section');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="mono-btn-outline"
+                title="View your saved schemes & scholarships"
+                style={{
+                  padding: '7px 12px',
+                  fontSize: '0.72rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontWeight: 700,
+                  backgroundColor: showOnlyBookmarks ? '#FEF3C7' : 'rgba(255, 255, 255, 0.88)',
+                  borderColor: showOnlyBookmarks ? '#F59E0B' : '#E2E8F0',
+                  color: showOnlyBookmarks ? '#B45309' : '#475569'
+                }}
+              >
+                <Bookmark size={13} fill={showOnlyBookmarks ? '#D97706' : 'none'} color={showOnlyBookmarks ? '#D97706' : '#64748B'} />
+                <span>SAVED ({bookmarkedSchemes.length})</span>
+              </button>
+            )}
+
             {currentUser ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div
@@ -885,7 +931,7 @@ export function App() {
                 >
                   <User size={13} color="#1D4ED8" />
                   <span className="font-mono" style={{ fontSize: '0.72rem', fontWeight: 800, color: '#1E40AF' }}>
-                    {currentUser.name} ({currentUser.persona.toUpperCase()})
+                    {currentUser.name}
                   </span>
                 </div>
                 <button
@@ -969,7 +1015,7 @@ export function App() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <User size={14} color="#1D4ED8" />
                   <span className="font-mono" style={{ fontSize: '0.74rem', fontWeight: 800, color: '#1E40AF' }}>
-                    {currentUser.name} • {currentUser.state} ({currentUser.persona.toUpperCase()})
+                    {currentUser.name}
                   </span>
                 </div>
                 <button
@@ -1049,38 +1095,60 @@ export function App() {
           boxShadow: '0 4px 14px rgba(11, 37, 69, 0.15)'
         }}
       >
-        <div className="mono-ticker-track font-mono" style={{ fontSize: '0.72rem', letterSpacing: '0.06em', display: 'flex', alignItems: 'center' }}>
+        <div className="mono-ticker-track font-mono" style={{ fontSize: '0.74rem', letterSpacing: '0.04em', display: 'flex', alignItems: 'center' }}>
           {[1, 2].map(iteration => (
             <React.Fragment key={iteration}>
-              <span style={{ padding: '0 22px', color: '#FDBA74', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ padding: '0 24px', color: '#FDBA74', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: 10 }}>
                 <span
                   style={{
-                    display: 'inline-block',
-                    width: 7,
-                    height: 7,
-                    borderRadius: '50%',
-                    backgroundColor: '#10B981'
+                    backgroundColor: '#EA580C',
+                    color: '#FFFFFF',
+                    fontSize: '0.66rem',
+                    fontWeight: 900,
+                    letterSpacing: '0.08em',
+                    padding: '2px 7px',
+                    border: '1px solid rgba(255, 255, 255, 0.35)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 5
                   }}
-                />
-                LATEST WELFARE SCHEMES & SCHOLARSHIP ANNOUNCEMENTS (AY 2025-26)
+                >
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 6,
+                      height: 6,
+                      backgroundColor: '#10B981'
+                    }}
+                  />
+                  LIVE UPDATES
+                </span>
+                <span style={{ color: '#E2E8F0', fontWeight: 700 }}>
+                  Official Central & State Portal Notices (2025–26)
+                </span>
               </span>
               {headlines.map(hl => (
-                <span key={`${iteration}-${hl.id}`} style={{ padding: '0 20px', color: '#E2E8F0' }}>
-                  • <span
+                <span key={`${iteration}-${hl.id}`} style={{ padding: '0 20px', color: '#CBD5E1', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ color: '#F97316', fontWeight: 900 }}>•</span>
+                  <span
                     style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.12)',
-                      color: '#FDBA74',
-                      padding: '2px 8px',
-                      borderRadius: 6,
-                      marginRight: 8,
-                      fontWeight: 700
+                      backgroundColor: 'rgba(255, 255, 255, 0.14)',
+                      color: hl.tagColor || '#FDBA74',
+                      padding: '2px 7px',
+                      fontSize: '0.67rem',
+                      fontWeight: 800,
+                      border: '1px solid rgba(255, 255, 255, 0.15)'
                     }}
                   >
                     {hl.tag}
                   </span>
-                  <span style={{ color: '#FFFFFF', fontWeight: 700 }}>
+                  <span style={{ color: '#FFFFFF', fontWeight: 800 }}>
                     {hl.title}
-                  </span>: {hl.detail}
+                  </span>
+                  <span style={{ color: '#94A3B8' }}>—</span>
+                  <span style={{ color: '#E2E8F0', fontWeight: 500 }}>
+                    {hl.detail}
+                  </span>
                 </span>
               ))}
             </React.Fragment>
@@ -1151,40 +1219,39 @@ export function App() {
           }}
         >
           {/* Citizen Welfare Navigator Tagline */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, margin: '0 auto 18px', padding: '6px 18px', background: 'rgba(255, 255, 255, 0.88)', border: '1px solid #E2E8F0', borderRadius: 9999, boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, margin: '0 auto 18px', padding: '6px 16px', background: '#FFFFFF', border: '1.5px solid #0F172A', boxShadow: '2px 2px 0px #0F172A' }}>
             <span style={{ fontSize: '0.9rem' }}>🇮🇳</span>
             <span className="font-mono" style={{ fontSize: '0.74rem', fontWeight: 800, color: '#0B2545', letterSpacing: '0.04em' }}>
               YOJANAMITRA • CITIZEN WELFARE & SCHOLARSHIPS DIRECTORY
             </span>
           </div>
 
-          {/* Oversized Serif Display Headline */}
+          {/* Clean, Human-Crafted Display Headline */}
           <h2
             className="font-display editorial-headline"
             style={{
-              fontSize: 'clamp(2.3rem, 5vw, 4.2rem)',
+              fontSize: 'clamp(2.1rem, 4.5vw, 3.8rem)',
               fontWeight: 900,
-              letterSpacing: '-0.04em',
-              lineHeight: 1.08,
-              textTransform: 'uppercase',
+              letterSpacing: '-0.035em',
+              lineHeight: 1.12,
               marginBottom: 16,
               color: '#0B2545'
             }}
           >
-            Who is applying today?
+            Find Government Schemes & Scholarships You Actually Qualify For
           </h2>
 
           <p
             className="font-body"
             style={{
-              fontSize: '1.12rem',
+              fontSize: '1.1rem',
               color: '#475569',
-              maxWidth: 720,
+              maxWidth: 760,
               margin: '0 auto 36px',
-              lineHeight: 1.6
+              lineHeight: 1.65
             }}
           >
-            Select your category below to discover exact national and state scholarships, educational aid, agricultural subsidies, and farmer welfare programs tailored to you.
+            Direct, verified access to official Central and State welfare programs, student scholarships, and agricultural subsidies — free of middlemen, agents, and outdated forms.
           </p>
 
           {/* Decorative Soft Divider */}
@@ -1769,8 +1836,8 @@ export function App() {
 
                       <div>
                         <label className="font-mono" style={{ fontSize: '0.72rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, letterSpacing: '0.08em' }}>
-                          <span>CURRENT EDUCATION LEVEL *</span>
-                          <span style={{ color: '#E11D48', fontSize: '0.64rem', fontWeight: 800 }}>REQUIRED</span>
+                          <span>CURRENT EDUCATION LEVEL</span>
+                          <span style={{ color: '#64748B', fontSize: '0.64rem', fontWeight: 600 }}>OPTIONAL</span>
                         </label>
                         <select
                           className="mono-select"
@@ -1875,8 +1942,8 @@ export function App() {
 
                       <div>
                         <label className="font-mono" style={{ fontSize: '0.72rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, letterSpacing: '0.08em' }}>
-                          <span>LANDHOLDING TYPE *</span>
-                          <span style={{ color: '#E11D48', fontSize: '0.64rem', fontWeight: 800 }}>REQUIRED OR KEYWORD</span>
+                          <span>LANDHOLDING TYPE</span>
+                          <span style={{ color: '#64748B', fontSize: '0.64rem', fontWeight: 600 }}>OPTIONAL</span>
                         </label>
                         <select
                           className="mono-select"
@@ -2024,8 +2091,8 @@ export function App() {
 
                       <div>
                         <label className="font-mono" style={{ fontSize: '0.72rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, letterSpacing: '0.08em' }}>
-                          <span>RATION CARD CATEGORY (FOODGRAIN SCHEMES) *</span>
-                          <span style={{ color: '#E11D48', fontSize: '0.64rem', fontWeight: 800 }}>REQUIRED OR KEYWORD</span>
+                          <span>RATION CARD CATEGORY (FOODGRAIN SCHEMES)</span>
+                          <span style={{ color: '#64748B', fontSize: '0.64rem', fontWeight: 600 }}>OPTIONAL</span>
                         </label>
                         <select
                           className="mono-select"
@@ -2173,8 +2240,8 @@ export function App() {
 
                       <div>
                         <label className="font-mono" style={{ fontSize: '0.72rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, letterSpacing: '0.08em' }}>
-                          <span>ENTERPRISE CLASSIFICATION *</span>
-                          <span style={{ color: '#E11D48', fontSize: '0.64rem', fontWeight: 800 }}>REQUIRED OR KEYWORD</span>
+                          <span>ENTERPRISE CLASSIFICATION</span>
+                          <span style={{ color: '#64748B', fontSize: '0.64rem', fontWeight: 600 }}>OPTIONAL</span>
                         </label>
                         <select
                           className="mono-select"
@@ -2302,7 +2369,7 @@ export function App() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 2px', marginTop: 6 }}>
                     <AlertCircle size={14} color="#E11D48" />
                     <span className="font-mono" style={{ fontSize: '0.7rem', color: '#64748B' }}>
-                      * Input mandatory: State selection and profile parameters are required to proceed.
+                      * State selection is mandatory. All other profile parameters are optional.
                     </span>
                   </div>
 
@@ -2344,28 +2411,30 @@ export function App() {
             </section>
 
             {/* Right Column: AI Discovered Schemes & Scholarships */}
-            <section style={{ display: 'flex', flexDirection: 'column', gap: 20, width: '100%' }}>
+            <section id="results-section" style={{ display: 'flex', flexDirection: 'column', gap: 20, width: '100%' }}>
               {/* Header & Filter Controls */}
               <div style={{ borderBottom: '1px solid #E2E8F0', paddingBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: 14 }}>
                   <div>
                     <span style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 700, display: 'block', marginBottom: 4 }}>
-                      DISCOVERED PROGRAMS & AID
+                      {showOnlyBookmarks ? 'SAVED FOR LATER' : 'DISCOVERED PROGRAMS & AID'}
                     </span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                       <h3 className="font-display" style={{ fontSize: '1.5rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '-0.02em', color: '#0B2545' }}>
-                        {selectedPersona === 'student'
+                        {showOnlyBookmarks
+                          ? 'Saved Bookmarks'
+                          : selectedPersona === 'student'
                           ? 'Eligible Scholarships'
                           : selectedPersona === 'farmer'
                           ? 'Eligible Agricultural Schemes'
                           : selectedPersona === 'citizen'
                           ? 'Eligible Family & Citizen Schemes'
-                          : 'Eligible Business & MSME Schemes'} ({filteredSchemes.length})
+                          : 'Eligible Business & MSME Schemes'} ({displayedSchemes.length})
                       </h3>
-                      {filteredSchemes.length > 0 && (() => {
-                        const verifiedCount = filteredSchemes.filter(s => s.scheme.verificationStatus === 'verified').length;
-                        const partiallyVerifiedCount = filteredSchemes.filter(s => s.scheme.verificationStatus === 'partially_verified').length;
-                        const unverifiedCount = filteredSchemes.filter(s => s.scheme.verificationStatus === 'unverified_candidate' || s.scheme.verificationStatus === 'unverified').length;
+                      {displayedSchemes.length > 0 && (() => {
+                        const verifiedCount = displayedSchemes.filter(s => s.scheme.verificationStatus === 'verified').length;
+                        const partiallyVerifiedCount = displayedSchemes.filter(s => s.scheme.verificationStatus === 'partially_verified').length;
+                        const unverifiedCount = displayedSchemes.filter(s => s.scheme.verificationStatus === 'unverified_candidate' || s.scheme.verificationStatus === 'unverified').length;
                         return (
                           <div style={{ display: 'inline-flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                             {verifiedCount > 0 ? (
@@ -2387,12 +2456,12 @@ export function App() {
                         );
                       })()}
                     </div>
-                    {filteredSchemes.length > 0 && (
+                    {displayedSchemes.length > 0 && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginTop: 6 }}>
                         <span className="font-mono" style={{ fontSize: '0.8rem', fontWeight: 600, color: '#0B2545' }}>
                           Jurisdiction: {activeState || 'All India'} • {
                             discoveryDiagnostics?.officialInformationPortalsCount ??
-                            new Set(filteredSchemes.filter(s => 
+                            new Set(displayedSchemes.filter(s => 
                               (s.scheme.sourceClassification === 'official_government_scheme_page' || s.scheme.sourceClassification === 'official_application_portal' || s.scheme.sourceClassification === 'official_government' || s.scheme.sourceClassification === 'official_scheme_portal') &&
                               (s.scheme.verificationStatus === 'verified' || s.scheme.verificationStatus === 'partially_verified')
                             ).map(s => {
@@ -2434,11 +2503,14 @@ export function App() {
                       ? ['All', 'Education']
                       : ['All', 'Agriculture']
                     ).map(cat => {
-                      const isActive = selectedCategoryFilter === cat;
+                      const isActive = selectedCategoryFilter === cat && !showOnlyBookmarks;
                       return (
                         <button
                           key={cat}
-                          onClick={() => setSelectedCategoryFilter(cat)}
+                          onClick={() => {
+                            setSelectedCategoryFilter(cat);
+                            setShowOnlyBookmarks(false);
+                          }}
                           className="font-mono"
                           style={{
                             backgroundColor: isActive ? '#0B2545' : 'rgba(255, 255, 255, 0.88)',
@@ -2461,6 +2533,36 @@ export function App() {
                         </button>
                       );
                     })}
+
+                    {/* Bookmarked Filter Pill */}
+                    <button
+                      type="button"
+                      onClick={() => setShowOnlyBookmarks(!showOnlyBookmarks)}
+                      className="font-mono"
+                      title="Toggle viewing only your saved bookmarks"
+                      style={{
+                        backgroundColor: showOnlyBookmarks ? '#D97706' : 'rgba(255, 255, 255, 0.88)',
+                        color: showOnlyBookmarks ? '#FFFFFF' : '#92400E',
+                        borderRadius: 9999,
+                        border: showOnlyBookmarks ? '1px solid #D97706' : '1px solid #FDE68A',
+                        boxShadow: showOnlyBookmarks ? '0 2px 8px rgba(217, 119, 6, 0.25)' : 'none',
+                        backdropFilter: 'blur(8px)',
+                        WebkitBackdropFilter: 'blur(8px)',
+                        padding: '6px 14px',
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        letterSpacing: '0.06em',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        transform: showOnlyBookmarks ? 'translateY(-1px)' : 'none',
+                        transition: 'all 0.18s ease'
+                      }}
+                    >
+                      <Bookmark size={13} fill={showOnlyBookmarks ? '#FFFFFF' : 'none'} color={showOnlyBookmarks ? '#FFFFFF' : '#D97706'} />
+                      <span>SAVED ({bookmarkedSchemes.length})</span>
+                    </button>
 
                     <button
                       type="button"
@@ -2684,7 +2786,7 @@ export function App() {
                     </div>
                   </div>
                 </div>
-              ) : filteredSchemes.length === 0 ? (
+              ) : displayedSchemes.length === 0 ? (
                 <div
                   className="mono-card"
                   style={{
@@ -2698,7 +2800,41 @@ export function App() {
                     WebkitBackdropFilter: 'blur(14px)'
                   }}
                 >
-                  {hasSearched ? (
+                  {showOnlyBookmarks ? (
+                    <div style={{ padding: '16px 12px', textAlign: 'center' }}>
+                      <div
+                        style={{
+                          width: 56,
+                          height: 56,
+                          borderRadius: 16,
+                          backgroundColor: '#FEF3C7',
+                          border: '1px solid #FDE68A',
+                          boxShadow: '0 4px 12px rgba(217, 119, 6, 0.15)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          margin: '0 auto 16px',
+                          color: '#D97706'
+                        }}
+                      >
+                        <Bookmark size={26} />
+                      </div>
+                      <h4 className="font-display" style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0B2545', marginBottom: 8 }}>
+                        NO BOOKMARKED SCHEMES YET
+                      </h4>
+                      <p className="font-body" style={{ fontSize: '0.88rem', color: '#64748B', maxWidth: 460, margin: '0 auto 20px', lineHeight: 1.5 }}>
+                        Click the <strong>Bookmark</strong> button on any scheme or scholarship card to store it here while searching and exploring other programs!
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setShowOnlyBookmarks(false)}
+                        className="mono-btn-primary"
+                        style={{ padding: '10px 18px', fontSize: '0.78rem' }}
+                      >
+                        ← VIEW ALL SEARCHED SCHEMES
+                      </button>
+                    </div>
+                  ) : hasSearched ? (
                     <>
                       <div
                         style={{
@@ -2805,7 +2941,9 @@ export function App() {
                       </div>
                     </div>
                   )}
-                  {filteredSchemes.map((item, index) => (
+                  {displayedSchemes.map((item, index) => {
+                    const isBookmarked = bookmarkedSchemes.some(b => b.scheme.id === item.scheme.id);
+                    return (
                     <div
                       key={item.scheme.id}
                       className="mono-card animate-entrance"
@@ -2881,269 +3019,6 @@ export function App() {
                                 ○ General Eligibility (Verify Criteria)
                               </span>
                             )}
-                            {/* Evidence-Based Source Classification Badge */}
-                            {(() => {
-                              const sc = item.scheme.sourceClassification;
-                              const isOfficialPortal = sc === 'official_government_scheme_page' || sc === 'official_application_portal' || sc === 'official_government' || sc === 'official_scheme_portal';
-                              const isDoc = sc === 'official_supporting_document' || item.scheme.sourceRelationship === 'official_supporting_document';
-                              const isSecondary = sc === 'secondary_source' || sc === 'reputable_secondary' || item.scheme.sourceRelationship === 'reputable_secondary_source';
-                              const isCommercial = sc === 'commercial_source' || sc === 'commercial';
-
-                              if (isOfficialPortal) {
-                                return (
-                                  <span
-                                    style={{
-                                      backgroundColor: '#F0FDF4',
-                                      color: '#166534',
-                                      padding: '3px 10px',
-                                      fontSize: '0.68rem',
-                                      fontWeight: 700,
-                                      borderRadius: 9999,
-                                      border: '1px solid #BBF7D0',
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: 5
-                                    }}
-                                  >
-                                    <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#16A34A', display: 'inline-block' }} />
-                                    {sc === 'official_application_portal' ? 'Official Application Portal' : 'Official Portal'}: {item.scheme.portalName}
-                                  </span>
-                                );
-                              }
-                              if (isDoc) {
-                                return (
-                                  <span
-                                    style={{
-                                      backgroundColor: '#EFF6FF',
-                                      color: '#1E40AF',
-                                      padding: '3px 10px',
-                                      fontSize: '0.68rem',
-                                      fontWeight: 700,
-                                      borderRadius: 9999,
-                                      border: '1px solid #BFDBFE',
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: 5
-                                    }}
-                                  >
-                                    <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#2563EB', display: 'inline-block' }} />
-                                    Official Document: {item.scheme.portalName}
-                                  </span>
-                                );
-                              }
-                              if (isSecondary) {
-                                return (
-                                  <span
-                                    style={{
-                                      backgroundColor: '#F8FAFC',
-                                      color: '#475569',
-                                      padding: '3px 10px',
-                                      fontSize: '0.68rem',
-                                      fontWeight: 700,
-                                      borderRadius: 9999,
-                                      border: '1px solid #CBD5E1',
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: 5
-                                    }}
-                                  >
-                                    <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#64748B', display: 'inline-block' }} />
-                                    Secondary Reference: {item.scheme.portalName}
-                                  </span>
-                                );
-                              }
-                              if (isCommercial) {
-                                return (
-                                  <span
-                                    style={{
-                                      backgroundColor: '#F1F5F9',
-                                      color: '#475569',
-                                      padding: '3px 10px',
-                                      fontSize: '0.68rem',
-                                      fontWeight: 700,
-                                      borderRadius: 9999,
-                                      border: '1px solid #E2E8F0',
-                                      display: 'inline-flex',
-                                      alignItems: 'center',
-                                      gap: 5
-                                    }}
-                                  >
-                                    <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#94A3B8', display: 'inline-block' }} />
-                                    Commercial Directory: {item.scheme.portalName}
-                                  </span>
-                                );
-                              }
-                              return (
-                                <span
-                                  style={{
-                                    backgroundColor: '#FFFBEB',
-                                    color: '#B45309',
-                                    padding: '3px 10px',
-                                    fontSize: '0.68rem',
-                                    fontWeight: 700,
-                                    borderRadius: 9999,
-                                    border: '1px solid #FDE68A',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: 5
-                                  }}
-                                >
-                                  <span style={{ width: 6, height: 6, borderRadius: '50%', backgroundColor: '#D97706', display: 'inline-block' }} />
-                                  Unverified Reference: {item.scheme.portalName}
-                                </span>
-                              );
-                            })()}
-                            {/* Explicit Scheme Verification Status Badge */}
-                            {item.scheme.verificationStatus === 'verified' ? (
-                              <span
-                                style={{
-                                  backgroundColor: '#ECFDF5',
-                                  color: '#047857',
-                                  padding: '3px 10px',
-                                  fontSize: '0.68rem',
-                                  fontWeight: 700,
-                                  borderRadius: 9999,
-                                  border: '1px solid #A7F3D0',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: 5
-                                }}
-                              >
-                                ✔ Scheme Verified
-                              </span>
-                            ) : item.scheme.verificationStatus === 'partially_verified' ? (
-                              <span
-                                style={{
-                                  backgroundColor: '#EFF6FF',
-                                  color: '#1D4ED8',
-                                  padding: '3px 10px',
-                                  fontSize: '0.68rem',
-                                  fontWeight: 700,
-                                  borderRadius: 9999,
-                                  border: '1px solid #BFDBFE',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: 5
-                                }}
-                              >
-                                ℹ Partially Verified Scheme
-                              </span>
-                            ) : (
-                              <span
-                                style={{
-                                  backgroundColor: '#FFFBEB',
-                                  color: '#B45309',
-                                  padding: '3px 10px',
-                                  fontSize: '0.68rem',
-                                  fontWeight: 700,
-                                  borderRadius: 9999,
-                                  border: '1px solid #FDE68A',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: 5
-                                }}
-                              >
-                                ○ Unverified Candidate
-                              </span>
-                            )}
-                            {/* Jurisdiction Verification Badge */}
-                            <span
-                              style={{
-                                backgroundColor: item.scheme.jurisdictionVerified ? '#F0FDF4' : '#FFFBEB',
-                                color: item.scheme.jurisdictionVerified ? '#166534' : '#92400E',
-                                padding: '3px 10px',
-                                fontSize: '0.68rem',
-                                fontWeight: 700,
-                                borderRadius: 9999,
-                                border: item.scheme.jurisdictionVerified ? '1px solid #BBF7D0' : '1px solid #FDE68A',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: 5
-                              }}
-                            >
-                              {item.scheme.jurisdictionVerified
-                                ? (item.scheme.level === 'Central'
-                                    ? 'Jurisdiction: Central (Nationwide)'
-                                    : (item.scheme.state && item.scheme.state.toLowerCase().includes('delhi'))
-                                    ? 'Jurisdiction: NCT of Delhi (UT with Legislature)'
-                                    : `Jurisdiction: State of ${item.scheme.state || activeState}`)
-                                : 'Jurisdiction: Unconfirmed'}
-                            </span>
-                            {/* Benefit Verification Badge */}
-                            <span
-                              style={{
-                                backgroundColor: item.scheme.benefitVerified ? '#F0FDF4' : '#FFFBEB',
-                                color: item.scheme.benefitVerified ? '#166534' : '#92400E',
-                                padding: '3px 10px',
-                                fontSize: '0.68rem',
-                                fontWeight: 700,
-                                borderRadius: 9999,
-                                border: item.scheme.benefitVerified ? '1px solid #BBF7D0' : '1px solid #FDE68A',
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: 5
-                              }}
-                            >
-                              {item.scheme.benefitVerified ? 'Benefit Terms Verified' : 'Benefit Details Not Verified'}
-                            </span>
-                            {/* Deadline Status Badge */}
-                            {item.scheme.deadlineStatus === 'open' ? (
-                              <span
-                                style={{
-                                  backgroundColor: '#F0FDF4',
-                                  color: '#15803D',
-                                  padding: '3px 10px',
-                                  fontSize: '0.68rem',
-                                  fontWeight: 700,
-                                  borderRadius: 9999,
-                                  border: '1px solid #BBF7D0'
-                                }}
-                              >
-                                ● Open for Applications {item.scheme.deadline ? `• ${item.scheme.deadline}` : ''}
-                              </span>
-                            ) : item.scheme.deadlineStatus === 'upcoming' ? (
-                              <span
-                                style={{
-                                  backgroundColor: '#EFF6FF',
-                                  color: '#1D4ED8',
-                                  padding: '3px 10px',
-                                  fontSize: '0.68rem',
-                                  fontWeight: 700,
-                                  borderRadius: 9999,
-                                  border: '1px solid #BFDBFE'
-                                }}
-                              >
-                                ⏳ Upcoming Application Window {item.scheme.deadline ? `• ${item.scheme.deadline}` : ''}
-                              </span>
-                            ) : item.scheme.deadlineStatus === 'closed' ? (
-                              <span
-                                style={{
-                                  backgroundColor: '#FEF2F2',
-                                  color: '#B91C1C',
-                                  padding: '3px 10px',
-                                  fontSize: '0.68rem',
-                                  fontWeight: 700,
-                                  borderRadius: 9999,
-                                  border: '1px solid #FECACA'
-                                }}
-                              >
-                                ✕ Currently Closed
-                              </span>
-                            ) : (
-                              <span
-                                style={{
-                                  backgroundColor: '#F8FAFC',
-                                  color: '#64748B',
-                                  padding: '3px 10px',
-                                  fontSize: '0.68rem',
-                                  fontWeight: 700,
-                                  borderRadius: 9999,
-                                  border: '1px solid #E2E8F0'
-                                }}
-                              >
-                                ○ Refer to Official Portal for Dates
-                              </span>
-                            )}
                           </div>
 
                           <h4 className="font-display" style={{ fontSize: '1.35rem', fontWeight: 900, letterSpacing: '-0.02em', color: '#000000' }}>
@@ -3185,8 +3060,36 @@ export function App() {
                           )}
                         </div>
 
-                        {/* Action Buttons: Official Scheme Page & Direct Apply */}
+                        {/* Action Buttons: Bookmark, Official Scheme Page & Direct Apply */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                          <button
+                            type="button"
+                            onClick={() => toggleBookmark(item)}
+                            className="mono-btn-outline"
+                            title={isBookmarked ? 'Remove from saved bookmarks' : 'Save / Bookmark this scheme for later'}
+                            style={{
+                              padding: '8px 12px',
+                              fontSize: '0.75rem',
+                              borderRadius: 10,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 6,
+                              backgroundColor: isBookmarked ? '#FEF3C7' : 'transparent',
+                              borderColor: isBookmarked ? '#F59E0B' : '#CBD5E1',
+                              color: isBookmarked ? '#92400E' : '#334155',
+                              fontWeight: isBookmarked ? 800 : 600,
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            <Bookmark
+                              size={13}
+                              fill={isBookmarked ? '#D97706' : 'none'}
+                              color={isBookmarked ? '#D97706' : '#64748B'}
+                            />
+                            <span>{isBookmarked ? 'SAVED' : 'BOOKMARK'}</span>
+                          </button>
+
                           <a
                             href={item.scheme.officialInformationUrl || item.scheme.officialUrl}
                             target="_blank"
@@ -3524,7 +3427,8 @@ export function App() {
                         </div>
                       )}
                     </div>
-                  ))}
+                    );
+                  })}
 
                   {/* Unverified Candidates Section (Strictly Separated from Verified Results) */}
                   {unverifiedCandidatesList && unverifiedCandidatesList.length > 0 && (
@@ -3734,21 +3638,6 @@ export function App() {
           >
             <div className="font-mono" style={{ fontSize: '0.72rem', letterSpacing: '0.08em' }}>
               © {CURRENT_YEAR} YOJANAMITRA. ALL RIGHTS RESERVED.
-            </div>
-            <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-              <span
-                style={{
-                  backgroundColor: '#FEF3C7',
-                  color: '#92400E',
-                  padding: '4px 12px',
-                  borderRadius: 9999,
-                  fontSize: '0.68rem',
-                  fontWeight: 700,
-                  border: '1px solid #FDE68A'
-                }}
-              >
-                Citizen Schemes & Scholarships Directory
-              </span>
             </div>
           </div>
         </div>
