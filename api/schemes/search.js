@@ -3436,10 +3436,11 @@ function evaluateProfileCriteria(params) {
     }
   }
   if (userEducation && userEducation !== "any") {
-    const isSchoolOnly = /\b(class 9|class ix|pre-matric|classes? i to x\b|class 9th - 10th|students from class 9)\b/i.test(combinedCriteriaText) && !/\b(post-matric|post matric|degree|diploma|postgraduate)\b/i.test(combinedCriteriaText);
+    const isSchoolOnly = /\b(class 9|class ix|pre-matric|pre matric|classes? i to x\b|class 9th - 10th|students from class 9|studying in class 9)\b/i.test(combinedCriteriaText) && !/\b(post-matric|post matric|college|university|undergraduate|postgraduate)\b/i.test(combinedCriteriaText);
+    const isCollegeUniversity = /\b(college and university|college & university|for college and university|for college & university|for college|for university|class 12 passed|after 12th|passed class 12|12th passed students?|undergraduate study|undergraduate studies|undergraduate course|first year of graduation|pursuing graduation|degree course)\b/i.test(combinedCriteriaText);
+    const isPgOnly = /\b(ph\.?d|doctorate|research fellowship|pg degree|post graduate degree|postgraduate studies|leading to specified pg)\b/i.test(combinedCriteriaText) && !/\b(undergraduate|intermediate|diploma, degree, or|first 3 years)\b/i.test(combinedCriteriaText);
+    const isDegreeDiploma = /\b(technical degree or diploma|degree or diploma course|admitted to 1st year .* degree|engineering degree|diploma in engineering)\b/i.test(combinedCriteriaText);
     const isPostMatric = /\b(post-matric|post matric|post-secondary|diploma, degree|pursuing recognized post-matriculation)\b/i.test(combinedCriteriaText);
-    const isPgOnly = /\b(pg degree|post graduate degree|postgraduate studies|leading to specified pg)\b/i.test(combinedCriteriaText) && !/\b(undergraduate|intermediate|diploma, degree, or)\b/i.test(combinedCriteriaText);
-    const isDegreeDiploma = /\b(technical degree or diploma|degree or diploma course|admitted to 1st year .* degree)\b/i.test(combinedCriteriaText);
     if (isSchoolOnly) {
       evaluatedChecksCount++;
       if (userEducation === "school") {
@@ -3452,9 +3453,22 @@ function evaluateProfileCriteria(params) {
     } else if (isPgOnly) {
       evaluatedChecksCount++;
       if (userEducation === "postgraduate") {
-        matchedReasons.push("Education level matched: Postgraduate (PG) degree program.");
+        matchedReasons.push("Education level matched: Postgraduate (PG) / Ph.D. research program.");
       } else {
-        unmatchedReasons.push(`Scheme requires enrollment in Postgraduate (PG) degree program; profile indicates ${rawEducation}.`);
+        unmatchedReasons.push(`Scheme requires enrollment in Postgraduate (PG) / Ph.D. program; profile indicates ${rawEducation}.`);
+      }
+    } else if (isCollegeUniversity) {
+      evaluatedChecksCount++;
+      if (userEducation === "undergraduate") {
+        matchedReasons.push("Education level matched: College & University / Undergraduate degree program.");
+      } else if (userEducation === "postgraduate") {
+        matchedReasons.push("Education level matched: College & University / Postgraduate program.");
+      } else if (userEducation === "school") {
+        unmatchedReasons.push("Scheme requires College / University enrollment (Class 12 passed); profile indicates School (Class 9th - 10th Pre-Matric).");
+      } else if (userEducation === "higher secondary") {
+        unmatchedReasons.push("Scheme requires admission to College / University (Class 12 passed); profile indicates Class 11th - 12th / Intermediate.");
+      } else {
+        unmatchedReasons.push(`Scheme requires College / University enrollment; profile indicates ${rawEducation}.`);
       }
     } else if (isDegreeDiploma) {
       evaluatedChecksCount++;
@@ -3468,7 +3482,7 @@ function evaluateProfileCriteria(params) {
     } else if (isPostMatric) {
       evaluatedChecksCount++;
       if (userEducation === "school") {
-        unmatchedReasons.push("Scheme requires Post-Matriculation (Class 11, Diploma, Degree, or PG); profile indicates School (Pre-Matric).");
+        unmatchedReasons.push("Scheme requires Post-Matriculation studies (Class 11, 12, Diploma, Degree, or PG); profile indicates School (Pre-Matric).");
       } else {
         matchedReasons.push(`Education level matched for Post-Matric / Higher Education (${rawEducation}).`);
       }
@@ -5149,7 +5163,7 @@ async function saveDiscoveredSchemesToSupabase(schemes, state, persona) {
   }
 }
 
-// api/schemes/search.ts
+// lib/search_source.ts
 var config = {
   maxDuration: 60
 };
