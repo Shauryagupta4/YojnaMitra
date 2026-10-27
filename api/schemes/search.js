@@ -1206,7 +1206,9 @@ var STATUTORY_SCHEME_PORTALS = {
   "mahaonline.gov.in": "Maharashtra Information Technology Corporation Ltd",
   "pfrda.org.in": "Pension Fund Regulatory and Development Authority (GoI)",
   "jeevandayee.gov.in": "State Health Assurance Society Maharashtra",
-  "cmchistn.com": "Chief Minister Comprehensive Health Insurance Scheme (Government of Tamil Nadu)"
+  "cmchistn.com": "Chief Minister Comprehensive Health Insurance Scheme (Government of Tamil Nadu)",
+  "upagriculture.com": "Department of Agriculture (Government of Uttar Pradesh)",
+  "upneda.org.in": "Uttar Pradesh New & Renewable Energy Development Agency (UPNEDA)"
 };
 var REPUTABLE_SECONDARY_DOMAINS = {
   "buddy4study.com": "Buddy4Study Scholarship Portal",
@@ -2687,7 +2689,28 @@ var SCHEME_CANONICAL_ALIASES = {
   "bihar student credit card": "bihar student credit card scheme",
   "abhyuday": "mukhyamantri abhyudaya yojana",
   "abhyudaya": "mukhyamantri abhyudaya yojana",
-  "up abhyudaya": "mukhyamantri abhyudaya yojana"
+  "up abhyudaya": "mukhyamantri abhyudaya yojana",
+  "kcc scheme": "kisan credit card kcc",
+  "up krishi upakaran": "uttar pradesh krishi yantra subsidy",
+  "up krishi yantra": "uttar pradesh krishi yantra subsidy",
+  "uttar pradesh krishi upakaran subsidy yojana": "uttar pradesh krishi yantra subsidy",
+  "uttar pradesh krishi upakaran": "uttar pradesh krishi yantra subsidy",
+  "krishi upakaran subsidy": "uttar pradesh krishi yantra subsidy",
+  "up government to offer solar pump at 70% subsidy": "up solar pump subsidy",
+  "up solar pump subsidy": "up solar pump subsidy",
+  "up solar pump": "up solar pump subsidy",
+  "upneda solar pump": "up solar pump subsidy",
+  "bihar krishi yantra": "bihar krishi yantra subsidy",
+  "bihar krishi yantra subsidy": "bihar krishi yantra subsidy",
+  "bihar krishi yantra subsidy yojana": "bihar krishi yantra subsidy",
+  "farmech bihar": "bihar krishi yantra subsidy",
+  "krishi yantra bihar": "bihar krishi yantra subsidy",
+  "bihar rajya fasal sahayata": "bihar rajya fasal sahayata yojana",
+  "bihar fasal sahayata": "bihar rajya fasal sahayata yojana",
+  "brfsy": "bihar rajya fasal sahayata yojana",
+  "bihar rajya fasal sahayata yojana": "bihar rajya fasal sahayata yojana",
+  "diesel anudan": "bihar diesel anudan yojana",
+  "bihar diesel anudan": "bihar diesel anudan yojana"
 };
 var FLAGSHIP_DEFINITIONS = {
   "pradhan mantri fasal bima": {
@@ -2747,6 +2770,94 @@ var FLAGSHIP_DEFINITIONS = {
       "Individual farmers, farmer groups, cooperatives, Panchayats, and Water User Associations (WUAs).",
       "Cultivable land ownership and requirement for standalone solar irrigation pump or grid-connected solarization.",
       "Beneficiary applications processed through designated State Nodal Agencies (SNAs) and agricultural electricity distribution companies (DISCOMs)."
+    ]
+  },
+  "kisan credit card kcc": {
+    name: "Kisan Credit Card (KCC) Scheme",
+    description: "Government of India institutional credit scheme providing short-term crop loans up to \u20B93 Lakh at an effective subsidized interest rate of 4% per annum (inclusive of 3% prompt repayment incentive).",
+    benefits: "Collateral-free agricultural loan up to \u20B91.60 Lakh and crop loan up to \u20B93.0 Lakh with flexible repayment and 4% effective interest rate.",
+    benefitType: "loan",
+    department: "Department of Agriculture & Farmers Welfare / RBI / NABARD",
+    officialUrl: "https://pmkisan.gov.in/",
+    applyUrl: "https://pmkisan.gov.in/",
+    portalName: "PM-KISAN KCC Portal / Commercial & Gramin Banks",
+    category: "Agriculture",
+    defaultDeadlineStatus: "open",
+    eligibilityCriteria: [
+      "All farmers, individual/joint borrowers who are owner cultivators.",
+      "Tenant farmers, oral lessees, and sharecroppers cultivating notified or agricultural crops.",
+      "SHGs or Joint Liability Groups of farmers including tenant farmers and sharecroppers.",
+      "Animal husbandry, dairy, and fisheries farmers are also eligible for working capital credit."
+    ]
+  },
+  "uttar pradesh krishi yantra subsidy": {
+    name: "Uttar Pradesh Krishi Yantra Subsidy Yojana",
+    description: "Department of Agriculture, Uttar Pradesh capital grant providing 40% to 50% subsidy on modern agricultural implements and farm machinery (tractors, rotavators, laser levelers, threshers, seed drills).",
+    benefits: "Direct financial subsidy of 40% to 50% (up to \u20B91,00,000 per implement) transferred directly to farmer bank account via DBT.",
+    benefitType: "subsidy",
+    department: "Department of Agriculture, Government of Uttar Pradesh",
+    officialUrl: "http://upagriculture.com/",
+    applyUrl: "http://upagriculture.com/",
+    portalName: "UP Agriculture Portal (upagriculture.com)",
+    category: "Agriculture",
+    defaultDeadlineStatus: "open",
+    eligibilityCriteria: [
+      "Permanent resident / landholding farmer of Uttar Pradesh.",
+      "Pre-registration on official UP Agriculture Portal (upagriculture.com) with valid Farmer Registration ID (Kisan Panjikaran).",
+      "Valid land revenue records (Khatauni / Khasra) in Uttar Pradesh.",
+      "Aadhaar-seeded active bank account on NPCI mapper for Direct Benefit Transfer."
+    ]
+  },
+  "up solar pump subsidy": {
+    name: "UP Solar Pump Subsidy Scheme (UPNEDA)",
+    description: "Government of Uttar Pradesh and UPNEDA initiative under PM-KUSUM Component B providing up to 70% joint Central and State subsidy for standalone solar agricultural irrigation pump sets (2 HP to 10 HP).",
+    benefits: "State plus Central subsidy of up to 70% on solar irrigation pump installation costs.",
+    benefitType: "subsidy",
+    department: "Uttar Pradesh New and Renewable Energy Development Agency (UPNEDA)",
+    officialUrl: "http://upagriculture.com/",
+    applyUrl: "http://upagriculture.com/",
+    portalName: "UP Agriculture & UPNEDA Portal",
+    category: "Agriculture",
+    defaultDeadlineStatus: "open",
+    eligibilityCriteria: [
+      "Resident farmer of Uttar Pradesh possessing cultivable agricultural land with boring/water source.",
+      "Registered on UP Agriculture portal (upagriculture.com) with online token booking.",
+      "Farmers who have not previously availed solar pump subsidy on the same land parcel."
+    ]
+  },
+  "bihar krishi yantra subsidy": {
+    name: "Bihar Krishi Yantra Subsidy Yojana (OFMAS)",
+    description: "Department of Agriculture, Government of Bihar financial grant offering 40% to 80% subsidy across 75+ agricultural machinery and mechanization tools through the OFMAS portal.",
+    benefits: "Direct financial subsidy of 40% to 80% on approved agricultural tools and machinery via DBT.",
+    benefitType: "subsidy",
+    department: "Department of Agriculture, Government of Bihar",
+    officialUrl: "https://farmech.bih.nic.in/",
+    applyUrl: "https://farmech.bih.nic.in/",
+    portalName: "OFMAS Bihar Agriculture Portal (farmech.bih.nic.in)",
+    category: "Agriculture",
+    defaultDeadlineStatus: "open",
+    eligibilityCriteria: [
+      "Native/resident farmer of Bihar registered on Bihar DBT Agriculture portal (dbtagriculture.bihar.gov.in).",
+      "Valid Land Possession Certificate (LPC) or updated land revenue receipt (Malgujari Rasid).",
+      "Higher subsidy ceiling (up to 80%) preferential allocation for SC, ST, and small/marginal farmers."
+    ]
+  },
+  "bihar rajya fasal sahayata yojana": {
+    name: "Bihar Rajya Fasal Sahayata Yojana (BRFSY)",
+    description: "Government of Bihar crop loss financial assistance scheme replacing PMFBY in Bihar, providing 100% free crop loss compensation without any insurance premium payable by farmers.",
+    benefits: "Free financial assistance of \u20B97,500/hectare (crop loss up to 20%) or \u20B910,000/hectare (crop loss > 20%) transferred directly via DBT.",
+    benefitType: "insurance",
+    department: "Cooperative Department, Government of Bihar",
+    officialUrl: "https://dbtagriculture.bihar.gov.in/",
+    applyUrl: "https://state.bihar.gov.in/cooperative/",
+    portalName: "Bihar DBT Agriculture & Cooperative Portal",
+    category: "Agriculture",
+    defaultDeadlineStatus: "open",
+    eligibilityCriteria: [
+      "All farmers cultivating notified seasonal crops in Bihar.",
+      "Both landowning cultivators (Raiyat) and sharecroppers/tenant farmers (Gair-Raiyat) are eligible.",
+      "Active registration on Bihar DBT Agriculture portal with self-declaration of sown acreage.",
+      "Zero premium required \u2014 entirely funded by Government of Bihar."
     ]
   },
   "post matric scholarship sc": {

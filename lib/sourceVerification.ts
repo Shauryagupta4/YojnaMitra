@@ -35,7 +35,9 @@ const STATUTORY_SCHEME_PORTALS: Record<string, string> = {
   'mahaonline.gov.in': 'Maharashtra Information Technology Corporation Ltd',
   'pfrda.org.in': 'Pension Fund Regulatory and Development Authority (GoI)',
   'jeevandayee.gov.in': 'State Health Assurance Society Maharashtra',
-  'cmchistn.com': 'Chief Minister Comprehensive Health Insurance Scheme (Government of Tamil Nadu)'
+  'cmchistn.com': 'Chief Minister Comprehensive Health Insurance Scheme (Government of Tamil Nadu)',
+  'upagriculture.com': 'Department of Agriculture (Government of Uttar Pradesh)',
+  'upneda.org.in': 'Uttar Pradesh New & Renewable Energy Development Agency (UPNEDA)'
 };
 
 const REPUTABLE_SECONDARY_DOMAINS: Record<string, string> = {
