@@ -1,5 +1,5 @@
 import { BASELINE_HEADLINES, HeadlineItem } from '../src/services/headlineAgent';
-import { callOpenRouterChat } from './lib/openrouter';
+import { callOpenRouterChat } from './_lib/openrouter';
 
 let cachedHeadlines: { data: HeadlineItem[]; expiresAt: number } | null = null;
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 mins

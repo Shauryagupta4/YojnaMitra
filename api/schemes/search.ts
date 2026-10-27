@@ -6,23 +6,23 @@ import {
   validateApplicationUrl,
   validateMvpScope,
   classifyCandidate
-} from '../lib/validation';
-import { normalizeStateName } from '../lib/states';
-import { runTinyFishSchemeDiscovery, classifySourceUrl } from '../lib/tinyfishSearch';
-import { fetchPagesWithFirecrawl } from '../lib/firecrawlFetch';
-import { fetchPagesWithTinyFish } from '../lib/tinyfishFetch'; // kept as fallback
-import { extractSchemesWithOpenRouter } from '../lib/openRouterProcessor';
-import { verifyAndDeduplicateSchemes, evaluateProfileCriteria } from '../lib/verification';
-import { generateCacheKey, getCachedSearch, setCachedSearch } from '../lib/cache';
-import { checkRateLimit } from '../lib/rateLimiter';
-import { fetchActiveSchemesFromSupabase, saveDiscoveredSchemesToSupabase } from '../lib/supabaseSchemes';
+} from '../_lib/validation';
+import { normalizeStateName } from '../_lib/states';
+import { runTinyFishSchemeDiscovery, classifySourceUrl } from '../_lib/tinyfishSearch';
+import { fetchPagesWithFirecrawl } from '../_lib/firecrawlFetch';
+import { fetchPagesWithTinyFish } from '../_lib/tinyfishFetch'; // kept as fallback
+import { extractSchemesWithOpenRouter } from '../_lib/openRouterProcessor';
+import { verifyAndDeduplicateSchemes, evaluateProfileCriteria } from '../_lib/verification';
+import { generateCacheKey, getCachedSearch, setCachedSearch } from '../_lib/cache';
+import { checkRateLimit } from '../_lib/rateLimiter';
+import { fetchActiveSchemesFromSupabase, saveDiscoveredSchemesToSupabase } from '../_lib/supabaseSchemes';
 import {
   SchemeSearchResponse,
   CanonicalScheme,
   DiscoveryDiagnostics,
   MVP_SUPPORTED_REGIONS,
   MVP_SUPPORTED_CATEGORIES
-} from '../lib/types';
+} from '../_lib/types';
 
 export const config = {
   maxDuration: 60
