@@ -688,6 +688,17 @@ pre, code {
   animation-play-state: paused;
 }
 
+.headline-ticker-link {
+  transition: all 0.15s ease-in-out;
+  border-radius: 4px;
+}
+
+.headline-ticker-link:hover {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  color: #FFFFFF !important;
+  transform: scale(1.02);
+}
+
 @keyframes tickerSlide {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }

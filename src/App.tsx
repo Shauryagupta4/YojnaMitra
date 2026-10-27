@@ -1167,30 +1167,50 @@ export function App() {
                   Official Central & State Portal Notices (2025–26)
                 </span>
               </span>
-              {headlines.map(hl => (
-                <span key={`${iteration}-${hl.id}`} style={{ padding: '0 20px', color: '#CBD5E1', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ color: '#F97316', fontWeight: 900 }}>•</span>
-                  <span
+              {headlines.map(hl => {
+                const targetUrl = hl.url || (hl.portal ? (hl.portal.startsWith('http') ? hl.portal : `https://${hl.portal}`) : 'https://scholarships.gov.in/');
+                return (
+                  <a
+                    key={`${iteration}-${hl.id}`}
+                    href={targetUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={`Open official portal for ${hl.title} (${targetUrl})`}
+                    className="headline-ticker-link"
                     style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.14)',
-                      color: hl.tagColor || '#FDBA74',
-                      padding: '2px 7px',
-                      fontSize: '0.67rem',
-                      fontWeight: 800,
-                      border: '1px solid rgba(255, 255, 255, 0.15)'
+                      padding: '2px 18px',
+                      color: '#CBD5E1',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      textDecoration: 'none',
+                      cursor: 'pointer'
                     }}
                   >
-                    {hl.tag}
-                  </span>
-                  <span style={{ color: '#FFFFFF', fontWeight: 800 }}>
-                    {hl.title}
-                  </span>
-                  <span style={{ color: '#94A3B8' }}>—</span>
-                  <span style={{ color: '#E2E8F0', fontWeight: 500 }}>
-                    {hl.detail}
-                  </span>
-                </span>
-              ))}
+                    <span style={{ color: '#F97316', fontWeight: 900 }}>•</span>
+                    <span
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.14)',
+                        color: hl.tagColor || '#FDBA74',
+                        padding: '2px 7px',
+                        fontSize: '0.67rem',
+                        fontWeight: 800,
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        borderRadius: 3
+                      }}
+                    >
+                      {hl.tag}
+                    </span>
+                    <span style={{ color: '#FFFFFF', fontWeight: 800, textDecoration: 'underline', textDecorationColor: 'rgba(56, 189, 248, 0.6)' }}>
+                      {hl.title} ↗
+                    </span>
+                    <span style={{ color: '#94A3B8' }}>—</span>
+                    <span style={{ color: '#E2E8F0', fontWeight: 500 }}>
+                      {hl.detail}
+                    </span>
+                  </a>
+                );
+              })}
             </React.Fragment>
           ))}
         </div>
