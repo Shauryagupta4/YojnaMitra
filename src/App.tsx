@@ -1258,14 +1258,6 @@ export function App() {
             justifyContent: 'center'
           }}
         >
-          {/* Citizen Welfare Navigator Tagline */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, margin: '0 auto 18px', padding: '6px 16px', background: '#FFFFFF', border: '1.5px solid #0F172A', boxShadow: '2px 2px 0px #0F172A' }}>
-            <span style={{ fontSize: '0.9rem' }}>🇮🇳</span>
-            <span className="font-mono" style={{ fontSize: '0.74rem', fontWeight: 800, color: '#0B2545', letterSpacing: '0.04em' }}>
-              YOJANAMITRA • CITIZEN WELFARE & SCHOLARSHIPS DIRECTORY
-            </span>
-          </div>
-
           {/* Clean, Human-Crafted Display Headline */}
           <h2
             className="font-display editorial-headline"
