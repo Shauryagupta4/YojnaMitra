@@ -1273,7 +1273,7 @@ export function App() {
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
               gap: 28,
               maxWidth: 900,
               margin: '0 auto',
@@ -1801,7 +1801,7 @@ export function App() {
                         </select>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div className="form-two-col-grid">
                         <div>
                           <label className="font-mono" style={{ fontSize: '0.72rem', fontWeight: 700, display: 'block', marginBottom: 6, letterSpacing: '0.08em' }}>
                             AGE
@@ -1870,7 +1870,7 @@ export function App() {
                         </select>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div className="form-two-col-grid">
                         <div>
                           <label className="font-mono" style={{ fontSize: '0.72rem', fontWeight: 700, display: 'block', marginBottom: 6, letterSpacing: '0.08em' }}>
                             SOCIAL CATEGORY
@@ -1975,7 +1975,7 @@ export function App() {
                         </select>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div className="form-two-col-grid">
                         <div>
                           <label className="font-mono" style={{ fontSize: '0.72rem', fontWeight: 700, display: 'block', marginBottom: 6, letterSpacing: '0.08em' }}>
                             AGE
@@ -2008,7 +2008,7 @@ export function App() {
                         </div>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div className="form-two-col-grid">
                         <div>
                           <label className="font-mono" style={{ fontSize: '0.72rem', fontWeight: 700, display: 'block', marginBottom: 6, letterSpacing: '0.08em' }}>
                             ANNUAL FARM INCOME (₹)
@@ -2124,7 +2124,7 @@ export function App() {
                         </select>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div className="form-two-col-grid">
                         <div>
                           <label className="font-mono" style={{ fontSize: '0.72rem', fontWeight: 700, display: 'block', marginBottom: 6, letterSpacing: '0.08em' }}>
                             AGE
@@ -2157,7 +2157,7 @@ export function App() {
                         </div>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div className="form-two-col-grid">
                         <div>
                           <label className="font-mono" style={{ fontSize: '0.72rem', fontWeight: 700, display: 'block', marginBottom: 6, letterSpacing: '0.08em' }}>
                             ANNUAL FAMILY INCOME (₹)
@@ -2274,7 +2274,7 @@ export function App() {
                         </select>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div className="form-two-col-grid">
                         <div>
                           <label className="font-mono" style={{ fontSize: '0.72rem', fontWeight: 700, display: 'block', marginBottom: 6, letterSpacing: '0.08em' }}>
                             APPLICANT AGE
@@ -2307,7 +2307,7 @@ export function App() {
                         </div>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                      <div className="form-two-col-grid">
                         <div>
                           <label className="font-mono" style={{ fontSize: '0.72rem', fontWeight: 700, display: 'block', marginBottom: 6, letterSpacing: '0.08em' }}>
                             ANNUAL TURNOVER (₹)
@@ -3061,7 +3061,7 @@ export function App() {
                         </div>
 
                         {/* Action Buttons: Bookmark, Official Scheme Page & Direct Apply */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                        <div className="scheme-action-buttons">
                           <button
                             type="button"
                             onClick={() => toggleBookmark(item)}
