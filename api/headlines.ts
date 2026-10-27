@@ -58,7 +58,48 @@ export const BASELINE_HEADLINES: HeadlineItem[] = [
   }
 ];
 
-import { callOpenRouterChat } from '../lib/openrouter';
+async function callOpenRouterChat(options: {
+  messages: { role: string; content: string }[];
+  apiKey: string;
+  temperature?: number;
+  maxTokens?: number;
+  timeoutMs?: number;
+}): Promise<{ text: string; modelUsed: string }> {
+  const model = process.env.OPENROUTER_MODEL || 'openrouter/free';
+  const timeoutMs = options.timeoutMs || 15000;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${options.apiKey}`,
+        'HTTP-Referer': 'https://yojnamitra2026.vercel.app',
+        'X-Title': 'YojanaMitra'
+      },
+      body: JSON.stringify({
+        model,
+        messages: options.messages,
+        temperature: options.temperature ?? 0.15,
+        max_tokens: options.maxTokens ?? 2000,
+        response_format: { type: 'json_object' }
+      }),
+      signal: controller.signal
+    });
+
+    if (!res.ok) {
+      throw new Error(`OpenRouter HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const content = data?.choices?.[0]?.message?.content || '';
+    return { text: content, modelUsed: data?.model || model };
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 let cachedHeadlines: { data: HeadlineItem[]; expiresAt: number } | null = null;
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 mins
