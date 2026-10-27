@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Security: Audited](https://img.shields.io/badge/Security-Zero%20Secret%20Leak-success)](https://github.com/Shauryagupta4/YojnaMitra)
 
-> **YojanaMitra** (योजनामित्र) is an AI-powered civic intelligence and welfare discovery engine connecting Indian citizens, students, farmers, women, and entrepreneurs with verified Central and State Government schemes, subsidies, and scholarships.
+> **YojanaMitra** (योजनामित्र) is an AI-powered civic intelligence and welfare discovery engine connecting Indian students and farmers with verified Central and State Government scholarships, schemes, subsidies, and agricultural grants.
 
 ---
 
@@ -14,7 +14,7 @@
 1. [Overview](#-overview)
 2. [Key Features](#-key-features)
 3. [Multi-Agent Architecture](#-multi-agent-architecture)
-4. [Supported Citizen Personas](#-supported-citizen-personas)
+4. [Supported Tracks & Personas](#-supported-tracks--personas)
 5. [Tech Stack](#-tech-stack)
 6. [Project Structure](#-project-structure)
 7. [Security & Zero-Leak Protocol](#-security--zero-leak-protocol)
@@ -27,19 +27,20 @@
 
 ## 🌟 Overview
 
-Navigating India's welfare landscape across 28 States, 8 Union Territories, and hundreds of Central Ministries is notoriously fragmented. Citizens frequently miss out on critical benefits due to complex eligibility rules, outdated portals, and lack of awareness.
+Navigating India's welfare landscape across 28 States, 8 Union Territories, and central ministries is notoriously complex and fragmented. Deserving students and hardworking farmers frequently miss out on critical financial aid and subsidies due to intricate eligibility conditions, scattered portals, and unverified information.
 
 **YojanaMitra** solves this by:
-- Intelligently matching citizens to schemes based on demographic, income, domicile, and category criteria.
-- Validating every opportunity against official government domains (`.gov.in`, `.nic.in`, `mygov.in`, `scholarships.gov.in`).
-- Utilizing an orchestrated multi-agent AI pipeline for live verification, web scraping, and policy tracking.
-- Providing instant bilingual voice assistance and an offline-resilient verified knowledge base.
+- Offering two dedicated discovery tracks tailored specifically for **Students** and **Farmers**.
+- Matching users based on granular profile parameters (education level, stream, landholding type, crop season, income, and domicile).
+- Validating every scheme and application link against official government domains (`.gov.in`, `.nic.in`, `scholarships.gov.in`, `pmkisan.gov.in`).
+- Utilizing an orchestrated multi-agent AI pipeline for live verification, web discovery, and policy tracking.
+- Providing bilingual voice assistance and an offline-resilient verified knowledge base.
 
 ---
 
 ## ⚡ Key Features
 
-- 🎯 **Persona-Driven Eligibility Matching**: Specialized questionnaires for Students, Farmers, Women, Entrepreneurs, Senior Citizens, and General Citizens.
+- 🎯 **Persona-Driven Eligibility Matching**: Dedicated, deep-parameter questionnaires for **Students & Scholars** (education level, stream, income, category, domicile) and **Farmers & Agricultural Workers** (landholding size, crop season, KCC, PMFBY insurance).
 - 🤖 **Multi-Agent Search & Validation**: Integrates live deep web search with AI validation to detect current deadlines, application links, and official guidelines.
 - 🛡️ **Anti-Hallucination & Domain Sentinel**: Strictly filters and verifies source URLs against authentic Indian government portals.
 - 🔐 **Dual Authentication System**: 
@@ -88,16 +89,14 @@ graph TD
 
 ---
 
-## 👥 Supported Citizen Personas
+## 👥 Supported Tracks & Personas
 
-| Persona | Core Coverage & Target Schemes |
-| :--- | :--- |
-| 🎓 **Students & Scholars** | National Scholarship Portal (NSP), Pre/Post-Matric Grants, AICTE Pragati & Saksham, State Medhavi Chhatravritti, PM-USP, Domicile Fee Concessions. |
-| 🌾 **Farmers & Agri-Workers** | PM-KISAN Samman Nidhi, Pradhan Mantri Fasal Bima Yojana (PMFBY), Kisan Credit Card (KCC), Solar Pump (KUSUM), Micro-Irrigation Subsidies. |
-| 👩 **Women & Child Welfare** | Pradhan Mantri Matru Vandana Yojana (PMMVY), Sukanya Samriddhi Yojana (SSY), Lakhpati Didi, Ladli Behna, Mahila Samman Savings. |
-| 💼 **Entrepreneurs & MSME** | PM Mudra Yojana (Shishu/Kishore/Tarun), Stand-Up India, PMEGP, Credit Guarantee Fund (CGTMSE), Startup India Seed Fund. |
-| 👴 **Senior Citizens & Divyang** | Indira Gandhi National Old Age Pension, PM Vaya Vandana Yojana, Rashtriya Vayoshri Yojana, Divyangjan Swavlamban, Disability Aid. |
-| 🏛️ **General & BPL Families** | Ayushman Bharat (PM-JAY), PM Awas Yojana (Urban/Gramin), PM Ujjwala Yojana, Antyodaya Anna Yojana (Ration Card). |
+YojanaMitra is tailored around two dedicated, high-impact tracks:
+
+| Persona Track | Targeted Eligibility Parameters | Primary Scheme & Scholarship Coverage |
+| :--- | :--- | :--- |
+| 🎓 **Students & Scholars** | State of study / domicile, Education level (Class 9th–10th Pre-Matric, 11th–12th Intermediate, Undergraduate B.Tech/MBBS/B.Sc, Postgraduate), Course stream (Engineering, Medical, Arts/Science/Commerce, Polytechnic/Diploma), Social category, Annual family income, PwD status. | National Scholarship Portal (NSP), Pre/Post-Matric Scholarships, AICTE Pragati & Saksham, State Medhavi Chhatravritti, PM-USP, and State Higher Education Fee Concessions. |
+| 🌾 **Farmers & Agri-Workers** | State of agricultural land, Landholding type (Small & Marginal < 2 Hectares, Tenant Cultivator / Sharecropper, Medium / Large Landholder), Primary crop season / commodity (Kharif, Rabi, Horticulture, Cash Crops, Dairy/Fisheries), Annual farm income, Social category, Kisan Credit Card (KCC) status, PMFBY crop insurance enrollment. | PM-KISAN Samman Nidhi (₹6,000/yr direct income support), Pradhan Mantri Fasal Bima Yojana (PMFBY), Kisan Credit Card (KCC) 4% interest loans, PM-KUSUM Solar Pumps, and State Agricultural Subsidies. |
 
 ---
 
