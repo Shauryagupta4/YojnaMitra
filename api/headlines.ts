@@ -1,4 +1,63 @@
-import { BASELINE_HEADLINES, HeadlineItem } from '../src/services/headlineAgent';
+export interface HeadlineItem {
+  id: string;
+  tag: string;
+  tagColor: string;
+  title: string;
+  detail: string;
+  portal: string;
+}
+
+export const BASELINE_HEADLINES: HeadlineItem[] = [
+  {
+    id: 'base-1',
+    tag: 'UTTAR PRADESH',
+    tagColor: '#FF9933',
+    title: 'UP Post-Matric & Pre-Matric Scholarship',
+    detail: 'Online registration and verification currently active for eligible students on scholarship.up.gov.in.',
+    portal: 'scholarship.up.gov.in'
+  },
+  {
+    id: 'base-2',
+    tag: 'CENTRAL SCHOLARSHIPS',
+    tagColor: '#38BDF8',
+    title: 'National Scholarship Portal (NSP)',
+    detail: 'One-Time Registration (OTR) is open for academic session 2025–26 across central ministry schemes.',
+    portal: 'scholarships.gov.in'
+  },
+  {
+    id: 'base-3',
+    tag: 'HEALTHCARE',
+    tagColor: '#10B981',
+    title: 'Ayushman Bharat (PM-JAY)',
+    detail: 'Free treatment cover up to ₹5 Lakh/year per family; e-KYC and golden card downloads active on beneficiary.nha.gov.in.',
+    portal: 'beneficiary.nha.gov.in'
+  },
+  {
+    id: 'base-4',
+    tag: 'AGRICULTURE',
+    tagColor: '#F59E0B',
+    title: 'PM-KISAN Samman Nidhi',
+    detail: '₹6,000 annual direct income support released in three installments for verified landholding farmers.',
+    portal: 'pmkisan.gov.in'
+  },
+  {
+    id: 'base-5',
+    tag: 'HIGHER EDUCATION',
+    tagColor: '#A855F7',
+    title: 'AICTE Pragati Scholarship for Girls',
+    detail: '₹50,000 annual assistance for female students pursuing recognized technical degree and diploma courses.',
+    portal: 'scholarships.gov.in'
+  },
+  {
+    id: 'base-6',
+    tag: 'FOOD & RATION',
+    tagColor: '#10B981',
+    title: 'PM Garib Kalyan Anna Yojana',
+    detail: 'Free monthly foodgrain entitlement continuing nationwide under the National Food Security Act.',
+    portal: 'nfsa.gov.in'
+  }
+];
+
 import { callOpenRouterChat } from '../lib/openrouter';
 
 let cachedHeadlines: { data: HeadlineItem[]; expiresAt: number } | null = null;

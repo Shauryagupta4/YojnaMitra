@@ -536,7 +536,7 @@ export default async function handler(req: any, res: any) {
         candidateUrls.push(item.url);
         if (candidateUrls.length >= maxFetchPagesBudget) break;
       }
-    } catch {}
+    } catch { }
   }
 
   // If budget remaining, fill with other eligible URLs
@@ -774,8 +774,8 @@ export default async function handler(req: any, res: any) {
         reasons: isNotMatched
           ? evaluation.unmatchedReasons
           : (isMatched && evaluation.matchedReasons.length > 0
-              ? evaluation.matchedReasons
-              : (s.eligibility?.reasons || evaluation.unknownReasons)),
+            ? evaluation.matchedReasons
+            : (s.eligibility?.reasons || evaluation.unknownReasons)),
         missingOrCautionCriteria: isNotMatched
           ? evaluation.unmatchedReasons
           : (s.eligibility?.missingOrCautionCriteria || [])
@@ -841,10 +841,10 @@ export default async function handler(req: any, res: any) {
   const accurateAdvisoryNote = advisoryNote || (
     sourceType === 'live_retrieval'
       ? (finalSchemes.length > 0
-          ? (verifiedSchemes > 0
-              ? `Discovered ${verifiedSchemes} verified and ${partiallyVerifiedSchemes} partially verified Central and State welfare programs for ${profile.state}. Verify application guidelines on the official portal links.`
-              : `Discovered ${partiallyVerifiedSchemes} candidate programs for ${profile.state}. Primary official confirmation in progress.`)
-          : `No active welfare schemes or scholarships directly matched the entered parameters for ${profile.state}.`)
+        ? (verifiedSchemes > 0
+          ? `Discovered ${verifiedSchemes} verified and ${partiallyVerifiedSchemes} partially verified Central and State welfare programs for ${profile.state}. Verify application guidelines on the official portal links.`
+          : `Discovered ${partiallyVerifiedSchemes} candidate programs for ${profile.state}. Primary official confirmation in progress.`)
+        : `No active welfare schemes or scholarships directly matched the entered parameters for ${profile.state}.`)
       : `Displaying ${finalSchemes.length} schemes from the curated reference archive for ${profile.state}. Live web search did not return fresh records.`
   );
 
