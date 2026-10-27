@@ -220,6 +220,12 @@ body {
   }
 }
 
+@media (max-width: 768px) {
+  .header-tagline-badge {
+    display: none !important;
+  }
+}
+
 /* Responsive Form Grids */
 .form-two-col-grid {
   display: grid;
@@ -239,12 +245,27 @@ body {
   .app-container {
     padding-left: 12px !important;
     padding-right: 12px !important;
-    padding-top: 20px !important;
+    padding-top: 16px !important;
     padding-bottom: 24px !important;
   }
 
   .neoglass-header {
-    padding: 10px 12px !important;
+    padding: 8px 10px !important;
+  }
+
+  .header-subtitle-text {
+    display: none !important;
+  }
+
+  .header-logo-icon {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 0.95rem !important;
+    border-radius: 9px !important;
+  }
+
+  .header-brand-text {
+    font-size: 1.15rem !important;
   }
 
   .mono-card {

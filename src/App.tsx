@@ -831,6 +831,7 @@ export function App() {
             style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer', userSelect: 'none' }}
           >
             <div
+              className="header-logo-icon"
               style={{
                 width: 44,
                 height: 44,
@@ -850,12 +851,13 @@ export function App() {
             >
               YM
             </div>
-            <div>
+            <div style={{ minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span className="font-display" style={{ fontSize: '1.42rem', fontWeight: 900, letterSpacing: '-0.03em', textTransform: 'uppercase', color: '#0B2545' }}>
+                <span className="font-display header-brand-text" style={{ fontSize: '1.42rem', fontWeight: 900, letterSpacing: '-0.03em', textTransform: 'uppercase', color: '#0B2545', whiteSpace: 'nowrap' }}>
                   Yojana<span style={{ background: 'linear-gradient(135deg, #FF7700 0%, #EA580C 100%)', color: '#FFFFFF', padding: '1px 8px', marginLeft: 4, borderRadius: 6, boxShadow: '0 2px 8px rgba(234, 88, 12, 0.25)' }}>Mitra</span>
                 </span>
                 <span
+                  className="header-tagline-badge"
                   style={{
                     fontSize: '0.68rem',
                     fontWeight: 700,
@@ -864,13 +866,14 @@ export function App() {
                     color: '#1D4ED8',
                     border: '1px solid #DBEAFE',
                     padding: '3px 10px',
-                    borderRadius: 9999
+                    borderRadius: 9999,
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   GOVERNMENT SCHEMES & SCHOLARSHIPS
                 </span>
               </div>
-              <div style={{ fontSize: '0.68rem', color: '#64748B', fontWeight: 600 }}>
+              <div className="header-subtitle-text" style={{ fontSize: '0.68rem', color: '#64748B', fontWeight: 600 }}>
                 Official Welfare Directory & Eligibility Guide • जन कल्याण सहायक
               </div>
             </div>
@@ -979,12 +982,49 @@ export function App() {
             )}
           </div>
 
-          {/* Mobile Menu Toggle Button */}
-          <div className="mobile-nav-toggle" style={{ display: 'none' }}>
+          {/* Mobile Quick Action Buttons & Menu Toggle */}
+          <div className="mobile-nav-toggle" style={{ display: 'none', alignItems: 'center', gap: 6 }}>
+            {currentUser ? (
+              <div
+                style={{
+                  backgroundColor: '#EFF6FF',
+                  border: '1px solid #BFDBFE',
+                  borderRadius: 9999,
+                  padding: '5px 9px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4
+                }}
+              >
+                <User size={12} color="#1D4ED8" />
+                <span className="font-mono" style={{ fontSize: '0.68rem', fontWeight: 800, color: '#1E40AF', maxWidth: 75, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {currentUser.name?.split(' ')[0] || 'Citizen'}
+                </span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => { setPendingPersona(null); setAuthMode('login'); setAuthModalReason(null); setIsAuthModalOpen(true); }}
+                className="mono-btn-outline"
+                style={{
+                  padding: '6px 11px',
+                  fontSize: '0.72rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  fontWeight: 700,
+                  whiteSpace: 'nowrap',
+                  borderRadius: 8
+                }}
+              >
+                <LogIn size={13} />
+                <span>SIGN IN</span>
+              </button>
+            )}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="mono-btn-outline"
-              style={{ padding: '8px 12px', minHeight: 44 }}
+              style={{ padding: '7px 10px', minHeight: 36, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               aria-label="Toggle Navigation Menu"
             >
               {isMobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
