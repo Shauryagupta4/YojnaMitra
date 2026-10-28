@@ -93,8 +93,6 @@ export default async function handler(req: any, res: any) {
       id: supabaseUserId,
       email: email,
       full_name: fullName || email.split('@')[0],
-      state: state || '',
-      persona: persona || 'citizen',
       updated_at: new Date().toISOString()
     };
 

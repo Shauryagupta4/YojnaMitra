@@ -39,3 +39,6 @@ dist-ssr
 
 # Scratch directories
 scratch/
+
+# Documents & PDFs
+*.pdf

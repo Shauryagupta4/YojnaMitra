@@ -105,8 +105,15 @@ export const SCHEME_CANONICAL_ALIASES: Record<string, string> = {
   'uttar pradesh scholarship': 'up post matric scholarship',
   'up dashmottar': 'up post matric scholarship',
   'up dashmottar scholarship': 'up post matric scholarship',
+  'dashmottar': 'up post matric scholarship',
   'dashmottar scholarship': 'up post matric scholarship',
+  'dashmottar scholarship uttar pradesh': 'up post matric scholarship',
+  'post matric other than inter': 'up post matric scholarship',
+  'post matric other than inter scholarship': 'up post matric scholarship',
+  'post matric other than intermediate': 'up post matric scholarship',
   'post matric scholarship uttar pradesh': 'up post matric scholarship',
+  'post matric scholarship obc uttar pradesh': 'up post matric scholarship',
+  'post matric scholarship for obc students uttar pradesh': 'up post matric scholarship',
   'pre matric scholarship uttar pradesh': 'up pre matric scholarship',
   'up pre matric': 'up pre matric scholarship',
   'up pre matric scholarship': 'up pre matric scholarship',
@@ -355,19 +362,19 @@ export const FLAGSHIP_DEFINITIONS: Record<string, FlagshipDefinition> = {
     ]
   },
   'up post matric scholarship': {
-    name: 'UP Post-Matric Scholarship & Fee Reimbursement Scheme',
-    description: 'Government of Uttar Pradesh comprehensive financial assistance program providing full tuition fee reimbursement and maintenance allowance for post-secondary, college, and university students across all categories (General, OBC, SC, ST, Minority).',
-    benefits: '100% reimbursement of approved non-refundable tuition and institutional fees directly via DBT, plus annual maintenance allowance up to ₹13,500/year.',
+    name: 'UP Post-Matric (Dashmottar) Scholarship & Fee Reimbursement Scheme',
+    description: 'Government of Uttar Pradesh flagship higher education financial assistance program providing 100% full tuition fee reimbursement and maintenance allowance for college, university, and technical degree students across all categories (General, OBC, SC, ST, Minority).',
+    benefits: '100% full course fee reimbursement (up to ₹50,000 to ₹62,000+ per year for professional/technical degree courses, e.g. B.Tech, MBBS, MBA, and complete approved government course fees for general degrees) + monthly maintenance allowance up to ₹13,500/year directly via DBT.',
     benefitType: 'scholarship',
     department: 'Social Welfare Department, Government of Uttar Pradesh',
     officialUrl: 'https://scholarship.up.gov.in/',
     applyUrl: 'https://scholarship.up.gov.in/',
-    portalName: 'UP Scholarship & Fee Reimbursement Online System',
+    portalName: 'UP Scholarship & Fee Reimbursement Online System (scholarship.up.gov.in)',
     category: 'Education',
     defaultDeadlineStatus: 'unknown',
     eligibilityCriteria: [
       'Must be a permanent resident / domicile of Uttar Pradesh.',
-      'Pursuing recognized Post-Matriculation (Class 11-12), ITI, Polytechnic, Diploma, Undergraduate (B.Tech, B.Sc, B.Com, MBBS), or Postgraduate courses.',
+      'Pursuing recognized Post-Matric (Class 11-12) or Post-Matric Other Than Inter / Dashmottar (Undergraduate, Postgraduate, B.Tech, MBBS, MBA, Polytechnic, Diploma) courses.',
       'Annual family income from all sources not exceeding ₹2,00,000 (₹2.0 Lakh) for General, OBC, and Minority students; and not exceeding ₹2,50,000 (₹2.5 Lakh) for SC and ST students.',
       'Student bank account must be Aadhaar-seeded and active on NPCI mapper for Direct Benefit Transfer (DBT).'
     ]
@@ -1066,80 +1073,75 @@ export function evaluateProfileCriteria(params: {
   }
 
   // 3. Gender / Women Specific Check
-  if (/\b(girl students?|girls? admitted|female candidates?|women candidates?|girl child|for girls|for women|female students?|girls only|women only)\b/i.test(combinedCriteriaText) ||
-      /\b(pragati|begum\s*hazrat\s*mahal|kanya|balika|mahila|ladli)\b/i.test(combinedCriteriaText) ||
-      /\b(pragati|begum\s*hazrat\s*mahal|kanya|balika|mahila|ladli|girls?|women)\b/i.test(schemeName || '')) {
+  const nameAndCriteria = `${schemeName || ''} ${description || ''} ${combinedCriteriaText}`.toLowerCase();
+  const isFemaleRestricted = /\b(girl students?|girls? admitted|female candidates?|women candidates?|girl child|for girls|for women|female students?|girls only|women only|female applicant)\b/i.test(nameAndCriteria) ||
+      /\b(pragati|begum\s*hazrat\s*mahal|kanya|balika|mahila|ladli)\b/i.test(nameAndCriteria);
+
+  if (isFemaleRestricted) {
     evaluatedChecksCount++;
-    if (!userGender || userGender === 'all') {
-      unknownReasons.push('Scheme specifies gender eligibility (restricted to female / girl students); gender not specified in profile.');
+    if (userGender === 'female') {
+      matchedReasons.push('Gender criteria met (female applicant).');
     } else if (userGender === 'male') {
       unmatchedReasons.push('Scheme is restricted to female/girl students; profile indicates Male.');
-    } else if (userGender === 'female') {
-      matchedReasons.push('Gender criteria met (female applicant).');
+    } else {
+      unmatchedReasons.push('Scheme is restricted exclusively to female/girl students; applicant gender not specified as Female.');
     }
   }
 
   // 4. Caste / Social Category Check
-  const mentionsGeneral = /\b(general|unreserved|all categories|all students|open to all|all communities)\b/i.test(combinedCriteriaText);
-  const isCombinedSCOBCAny = /\b(belonging to|belong to|reserved for|only for|applicable to)\s*(?:the\s+)?(?:sc|st|obc)/i.test(combinedCriteriaText) ||
-    /\b(sc\s*[\/,]\s*st\s*[\/,]\s*obc|sc\s*[\/,]\s*obc)\s+(?:students?|candidates?|scholarship|schemes?)\b/i.test(combinedCriteriaText) ||
-    /\b(?:schemes?|scholarships?|assistance)\s+for\s+(?:the\s+)?(?:sc|st|obc)/i.test(combinedCriteriaText) ||
-    /\bfor\s+(?:the\s+)?(?:sc|st|obc)\s*(?:&|and|\/)\s*(?:sc|st|obc)\s+(?:students?|candidates?|applicants?|scholarship|schemes?)\b/i.test(combinedCriteriaText) ||
-    /\b(welfare of\s*(?:the\s*)?(?:sc|st|obc))\b/i.test(combinedCriteriaText);
-  const isReservedSC = /\b(belonging to (?:the\s+)?scheduled caste|for sc students|sc category|scheduled caste \(sc\) category|reserved for (?:the\s+)?scheduled caste)\b/i.test(combinedCriteriaText);
-  const isReservedST = /\b(belonging to (?:the\s+)?scheduled tribe|for st students|st category|scheduled tribe \(st\) category|reserved for (?:the\s+)?scheduled tribe)\b/i.test(combinedCriteriaText);
-  const isReservedOBC = /\b(belonging to (?:the\s+)?(?:obc|other backward)|for obc students|obc category|reserved for (?:the\s+)?(?:obc|other backward))\b/i.test(combinedCriteriaText);
-  const isReservedMinority = /\b(belonging to (?:a\s+)?minority community|for minority students|minority category|minority community students?)\b/i.test(combinedCriteriaText);
+  const isReservedSC = /\b(belonging to (?:the\s+)?scheduled caste|for sc students|sc category|scheduled caste \(sc\) category|reserved for (?:the\s+)?scheduled caste|scholarship for sc)\b/i.test(nameAndCriteria);
+  const isReservedST = /\b(belonging to (?:the\s+)?scheduled tribe|for st students|st category|scheduled tribe \(st\) category|reserved for (?:the\s+)?scheduled tribe|scholarship for st)\b/i.test(nameAndCriteria);
+  const isReservedOBC = /\b(belonging to (?:the\s+)?(?:obc|other backward)|for obc students|obc category|reserved for (?:the\s+)?(?:obc|other backward)|scholarship for obc)\b/i.test(nameAndCriteria);
+  const isReservedMinority = /\b(belonging to (?:a\s+)?minority community|for minority students|minority category|minority community students?|scholarship for minorit)\b/i.test(nameAndCriteria);
+  const isCombinedSCOBCAny = /\b(belonging to|belong to|reserved for|only for|applicable to)\s*(?:the\s+)?(?:sc|st|obc)/i.test(nameAndCriteria) ||
+    /\b(sc\s*[\/,]\s*st\s*[\/,]\s*obc|sc\s*[\/,]\s*obc)\s+(?:students?|candidates?|scholarship|schemes?)\b/i.test(nameAndCriteria) ||
+    /\b(?:schemes?|scholarships?|assistance)\s+for\s+(?:the\s+)?(?:sc|st|obc)/i.test(nameAndCriteria) ||
+    /\bfor\s+(?:the\s+)?(?:sc|st|obc)\s*(?:&|and|\/)\s*(?:sc|st|obc)\s+(?:students?|candidates?|applicants?|scholarship|schemes?)\b/i.test(nameAndCriteria) ||
+    /\b(welfare of\s*(?:the\s*)?(?:sc|st|obc))\b/i.test(nameAndCriteria);
 
-  if (mentionsGeneral && userCategory && userCategory.includes('general')) {
+  const isExclusiveReserved = isReservedSC || isReservedST || isReservedOBC || isReservedMinority || isCombinedSCOBCAny;
+
+  if (isExclusiveReserved) {
     evaluatedChecksCount++;
-    matchedReasons.push('Social category matched: General (scheme covers General / all categories).');
-  } else if (isCombinedSCOBCAny) {
-    evaluatedChecksCount++;
-    if (!userCategory) {
-      unknownReasons.push('Scheme specifies category criteria (SC/ST/OBC); social category not specified.');
-    } else if (userCategory.includes('sc') || userCategory.includes('st') || userCategory.includes('obc')) {
-      matchedReasons.push(`Social category matched: ${rawCategory}.`);
-    } else if (userCategory.includes('general')) {
-      unmatchedReasons.push('Scheme reserved for SC/ST/OBC applicants; profile indicates General category.');
-    } else {
-      unknownReasons.push(`Category criteria (SC/ST/OBC) requires verification for ${rawCategory}.`);
+    if (isReservedOBC) {
+      if (userCategory.includes('obc')) {
+        matchedReasons.push('Social category matched: OBC.');
+      } else {
+        unmatchedReasons.push(`Scheme is exclusively reserved for OBC applicants; profile indicates ${rawCategory || 'General'}.`);
+      }
+    } else if (isReservedSC && !isReservedST) {
+      if (userCategory.includes('sc') && !userCategory.includes('st')) {
+        matchedReasons.push('Social category matched: Scheduled Caste (SC).');
+      } else {
+        unmatchedReasons.push(`Scheme is exclusively reserved for Scheduled Caste (SC) applicants; profile indicates ${rawCategory || 'General'}.`);
+      }
+    } else if (isReservedST) {
+      if (userCategory.includes('st')) {
+        matchedReasons.push('Social category matched: Scheduled Tribe (ST).');
+      } else {
+        unmatchedReasons.push(`Scheme is exclusively reserved for Scheduled Tribe (ST) applicants; profile indicates ${rawCategory || 'General'}.`);
+      }
+    } else if (isReservedMinority) {
+      if (userCategory.includes('minority')) {
+        matchedReasons.push('Social category matched: Minority.');
+      } else {
+        unmatchedReasons.push(`Scheme is exclusively reserved for Minority students; profile indicates ${rawCategory || 'General'}.`);
+      }
+    } else if (isCombinedSCOBCAny) {
+      if (userCategory.includes('sc') || userCategory.includes('st') || userCategory.includes('obc')) {
+        matchedReasons.push(`Social category matched: ${rawCategory}.`);
+      } else {
+        unmatchedReasons.push(`Scheme reserved for SC/ST/OBC applicants; profile indicates ${rawCategory || 'General'}.`);
+      }
     }
-  } else if (isReservedSC && !isReservedOBC && !isReservedST) {
-    evaluatedChecksCount++;
-    if (!userCategory) {
-      unknownReasons.push('Scheme reserved for Scheduled Caste (SC); category not specified.');
-    } else if (userCategory.includes('sc') && !userCategory.includes('st')) {
-      matchedReasons.push('Social category matched: Scheduled Caste (SC).');
-    } else {
-      unmatchedReasons.push(`Scheme reserved for Scheduled Caste (SC) applicants; profile indicates ${rawCategory || 'non-SC'}.`);
-    }
-  } else if (isReservedST && !isReservedSC) {
-    evaluatedChecksCount++;
-    if (!userCategory) {
-      unknownReasons.push('Scheme reserved for Scheduled Tribe (ST); category not specified.');
-    } else if (userCategory.includes('st')) {
-      matchedReasons.push('Social category matched: Scheduled Tribe (ST).');
-    } else {
-      unmatchedReasons.push(`Scheme reserved for Scheduled Tribe (ST) applicants; profile indicates ${rawCategory || 'non-ST'}.`);
-    }
-  } else if (isReservedOBC) {
-    evaluatedChecksCount++;
-    if (!userCategory) {
-      unknownReasons.push('Scheme reserved for OBC; category not specified.');
-    } else if (userCategory.includes('obc')) {
-      matchedReasons.push('Social category matched: OBC.');
-    } else {
-      unmatchedReasons.push(`Scheme reserved for OBC applicants; profile indicates ${rawCategory || 'non-OBC'}.`);
-    }
-  } else if (isReservedMinority) {
-    evaluatedChecksCount++;
-    if (!userCategory) {
-      unknownReasons.push('Scheme reserved for Minority students; category not specified.');
-    } else if (userCategory.includes('minority')) {
-      matchedReasons.push('Social category matched: Minority.');
-    } else {
-      unmatchedReasons.push(`Scheme reserved for Minority students; profile indicates ${rawCategory || 'non-Minority'}.`);
+  } else {
+    // Open / Universal category scheme
+    if (userCategory && userCategory.includes('general')) {
+      evaluatedChecksCount++;
+      matchedReasons.push('Social category matched: General (scheme open to General / all categories).');
+    } else if (userCategory) {
+      evaluatedChecksCount++;
+      matchedReasons.push(`Social category matched: ${rawCategory} (scheme open to all categories).`);
     }
   }
 
@@ -1883,7 +1885,11 @@ export function verifyAndDeduplicateSchemes(params: {
       continue;
     }
 
-    const normKey = normalizeSchemeName(cleanedName);
+    let normKey = normalizeSchemeName(cleanedName);
+    // Explicit UP Portal reconciliation: scholarship.up.gov.in covers all categories under Dashmottar
+    if (officialUrl.includes('scholarship.up.gov.in') && /post[- ]?matric|dashmottar|shulk|obc|general|sc|st/i.test(cleanedName)) {
+      normKey = 'up post matric scholarship';
+    }
     if (!normKey || normKey.length < 3) continue;
 
     // Two-stage discovery / Flagship canonical reconciliation:

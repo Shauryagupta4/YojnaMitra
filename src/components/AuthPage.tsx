@@ -122,14 +122,12 @@ export function AuthPage({
         try {
           const { data: profileData } = await supabase
             .from('profiles')
-            .select('id, full_name, email, phone, state, persona, updated_at')
+            .select('id, full_name, email, phone, updated_at')
             .eq('id', authData.user.id)
             .maybeSingle();
 
           if (profileData) {
             profileName = profileData.full_name || profileName;
-            if (profileData.state) profileState = profileData.state;
-            if (profileData.persona) profilePersona = profileData.persona as any;
           }
         } catch {
           // ignore profile fetch error
@@ -351,8 +349,6 @@ export function AuthPage({
             email: authEmail,
             full_name: newUser.name,
             phone: isNum ? identifier : null,
-            state: newUser.state,
-            persona: newUser.persona,
             updated_at: new Date().toISOString()
           });
         } catch (dbErr) {

@@ -34,10 +34,16 @@ export default defineConfig(({ mode }) => {
                 }
                 req.query = Object.fromEntries(urlObj.searchParams);
 
-                const endpointPath = '.' + urlObj.pathname + '.ts';
+                let endpointPath = '.' + urlObj.pathname + '.ts';
+                try {
+                  const fs = await import('node:fs');
+                  if (!fs.existsSync(endpointPath)) {
+                    endpointPath = '.' + urlObj.pathname + '.js';
+                  }
+                } catch {}
 
                 const mod = await server.ssrLoadModule(endpointPath);
-                const handler = mod.default;
+                const handler = mod.default || mod.handler;
 
                 res.status = (code) => {
                   res.statusCode = code;

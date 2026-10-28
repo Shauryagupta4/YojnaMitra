@@ -99,8 +99,43 @@ const PIPELINE_STAGES = [
 ];
 
 export function App() {
+  // Helper to determine initial persona and view from URL hash or localStorage / sessionStorage
+  const getInitialNavigation = () => {
+    try {
+      const hash = window.location.hash.replace(/^#/, '').toLowerCase();
+      if (hash === 'auth' || hash === 'login' || hash === 'signup') {
+        return { view: 'auth' as const, persona: 'unselected' as const };
+      }
+      if (['student', 'farmer', 'citizen', 'business'].includes(hash)) {
+        return { view: 'app' as const, persona: hash as 'student' | 'farmer' | 'citizen' | 'business' };
+      }
+      if (hash === 'home') {
+        return { view: 'app' as const, persona: 'unselected' as const };
+      }
+      const savedPersona = localStorage.getItem('ym_active_persona') || sessionStorage.getItem('ym_active_persona');
+      if (savedPersona && ['student', 'farmer', 'citizen', 'business'].includes(savedPersona)) {
+        return { view: 'app' as const, persona: savedPersona as 'student' | 'farmer' | 'citizen' | 'business' };
+      }
+      const savedView = localStorage.getItem('ym_active_view') || sessionStorage.getItem('ym_active_view');
+      if (savedView === 'auth') {
+        return { view: 'auth' as const, persona: 'unselected' as const };
+      }
+    } catch {}
+    return { view: 'app' as const, persona: 'unselected' as const };
+  };
+
+  const getSavedJson = <T,>(key: string, fallback: T): T => {
+    try {
+      const val = localStorage.getItem(key) || sessionStorage.getItem(key);
+      return val ? JSON.parse(val) : fallback;
+    } catch {
+      return fallback;
+    }
+  };
+
+  const initialNav = getInitialNavigation();
   // Navigation & View State ('app' | 'auth' | 'error')
-  const [currentView, setCurrentView] = useState<'app' | 'auth' | 'error'>('app');
+  const [currentView, setCurrentView] = useState<'app' | 'auth' | 'error'>(initialNav.view);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalReason, setAuthModalReason] = useState<string | null>(null);
@@ -116,68 +151,82 @@ export function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Persona Selection ('unselected' | 'student' | 'farmer' | 'citizen' | 'business')
-  const [selectedPersona, setSelectedPersona] = useState<'unselected' | 'student' | 'farmer' | 'citizen' | 'business'>('unselected');
+  const [selectedPersona, setSelectedPersona] = useState<'unselected' | 'student' | 'farmer' | 'citizen' | 'business'>(initialNav.persona);
 
-  // Student specific inputs (empty by default)
-  const [studentAge, setStudentAge] = useState<number | ''>('');
-  const [studentGender, setStudentGender] = useState<'Male' | 'Female' | 'Transgender' | 'All' | ''>('');
-  const [studentState, setStudentState] = useState<string>('');
-  const [studentIncome, setStudentIncome] = useState<number | ''>('');
-  const [studentCategory, setStudentCategory] = useState<'General' | 'OBC' | 'SC' | 'ST' | 'Minority' | 'EWS' | ''>('');
-  const [educationLevel, setEducationLevel] = useState<'School' | 'Higher Secondary' | 'Undergraduate' | 'Postgraduate' | 'Any' | ''>('');
-  const [courseStream, setCourseStream] = useState<string>('');
+  // Load saved forms and search cache
+  const studentSaved = getSavedJson('ym_form_student', {} as any);
+  const farmerSaved = getSavedJson('ym_form_farmer', {} as any);
+  const citizenSaved = getSavedJson('ym_form_citizen', {} as any);
+  const businessSaved = getSavedJson('ym_form_business', {} as any);
+  const searchCached = getSavedJson('ym_search_cache', null as any);
 
-  // Farmer specific inputs (empty by default)
-  const [farmerState, setFarmerState] = useState<string>('');
-  const [farmerAge, setFarmerAge] = useState<number | ''>('');
-  const [farmerGender, setFarmerGender] = useState<'Male' | 'Female' | 'Transgender' | 'All' | ''>('');
-  const [farmerType, setFarmerType] = useState<'Small/Marginal' | 'Landless' | 'Large' | 'Any' | ''>('');
-  const [farmerCropSeason, setFarmerCropSeason] = useState<string>('');
-  const [farmerIncome, setFarmerIncome] = useState<number | ''>('');
-  const [farmerCategory, setFarmerCategory] = useState<'General' | 'OBC' | 'SC' | 'ST' | 'Minority' | 'EWS' | ''>('');
-  const [hasKccCard, setHasKccCard] = useState<boolean>(false);
-  const [hasCropInsurance, setHasCropInsurance] = useState<boolean>(false);
+  // Student specific inputs (persisted across refreshes)
+  const [studentAge, setStudentAge] = useState<number | ''>(studentSaved.age ?? '');
+  const [studentGender, setStudentGender] = useState<'Male' | 'Female' | 'Transgender' | 'All' | ''>(studentSaved.gender ?? '');
+  const [studentState, setStudentState] = useState<string>(studentSaved.state ?? '');
+  const [studentIncome, setStudentIncome] = useState<number | ''>(studentSaved.income ?? '');
+  const [studentCategory, setStudentCategory] = useState<'General' | 'OBC' | 'SC' | 'ST' | 'Minority' | 'EWS' | ''>(studentSaved.category ?? '');
+  const [educationLevel, setEducationLevel] = useState<'School' | 'Higher Secondary' | 'Undergraduate' | 'Postgraduate' | 'Any' | ''>(studentSaved.educationLevel ?? '');
+  const [courseStream, setCourseStream] = useState<string>(studentSaved.courseStream ?? '');
 
-  // General Citizen (Personal & Family Welfare) inputs (empty by default)
-  const [citizenAge, setCitizenAge] = useState<number | ''>('');
-  const [citizenGender, setCitizenGender] = useState<'Male' | 'Female' | 'Transgender' | 'All' | ''>('');
-  const [citizenState, setCitizenState] = useState<string>('');
-  const [citizenOccupation, setCitizenOccupation] = useState<'Daily Wage Earner' | 'Self Employed' | 'Unemployed' | 'Senior Citizen' | 'Any' | ''>('');
-  const [citizenIncome, setCitizenIncome] = useState<number | ''>('');
-  const [citizenCategory, setCitizenCategory] = useState<'General' | 'OBC' | 'SC' | 'ST' | 'Minority' | 'EWS' | ''>('');
-  const [familyRationType, setFamilyRationType] = useState<string>('');
-  const [housingCondition, setHousingCondition] = useState<string>('');
-  const [hasAyushmanCard, setHasAyushmanCard] = useState<boolean>(false);
-  const [hasBplCard, _setHasBplCard] = useState<boolean>(false);
-  const [isDifferentlyAbled, setIsDifferentlyAbled] = useState<boolean>(false);
+  // Farmer specific inputs (persisted across refreshes)
+  const [farmerState, setFarmerState] = useState<string>(farmerSaved.state ?? '');
+  const [farmerAge, setFarmerAge] = useState<number | ''>(farmerSaved.age ?? '');
+  const [farmerGender, setFarmerGender] = useState<'Male' | 'Female' | 'Transgender' | 'All' | ''>(farmerSaved.gender ?? '');
+  const [farmerType, setFarmerType] = useState<'Small/Marginal' | 'Landless' | 'Large' | 'Any' | ''>(farmerSaved.farmerType ?? '');
+  const [farmerCropSeason, setFarmerCropSeason] = useState<string>(farmerSaved.farmerCropSeason ?? '');
+  const [farmerIncome, setFarmerIncome] = useState<number | ''>(farmerSaved.income ?? '');
+  const [farmerCategory, setFarmerCategory] = useState<'General' | 'OBC' | 'SC' | 'ST' | 'Minority' | 'EWS' | ''>(farmerSaved.category ?? '');
+  const [hasKccCard, setHasKccCard] = useState<boolean>(farmerSaved.hasKccCard ?? false);
+  const [hasCropInsurance, setHasCropInsurance] = useState<boolean>(farmerSaved.hasCropInsurance ?? false);
 
-  // Business & MSME specific inputs (empty by default)
-  const [businessState, setBusinessState] = useState<string>('');
-  const [businessType, setBusinessType] = useState<string>('');
-  const [businessAge, setBusinessAge] = useState<number | ''>('');
-  const [businessGender, setBusinessGender] = useState<'Male' | 'Female' | 'Transgender' | 'All' | ''>('');
-  const [loanNeed, setLoanNeed] = useState<string>('');
-  const [businessTurnover, setBusinessTurnover] = useState<number | ''>('');
-  const [businessCategory, setBusinessCategory] = useState<'General' | 'OBC' | 'SC' | 'ST' | 'Minority' | 'EWS' | ''>('');
-  const [isUdyamRegistered, setIsUdyamRegistered] = useState<boolean>(false);
-  const [isWomenLed, setIsWomenLed] = useState<boolean>(false);
+  // General Citizen (Personal & Family Welfare) inputs
+  const [citizenAge, setCitizenAge] = useState<number | ''>(citizenSaved.age ?? '');
+  const [citizenGender, setCitizenGender] = useState<'Male' | 'Female' | 'Transgender' | 'All' | ''>(citizenSaved.gender ?? '');
+  const [citizenState, setCitizenState] = useState<string>(citizenSaved.state ?? '');
+  const [citizenOccupation, setCitizenOccupation] = useState<'Daily Wage Earner' | 'Self Employed' | 'Unemployed' | 'Senior Citizen' | 'Any' | ''>(citizenSaved.occupation ?? '');
+  const [citizenIncome, setCitizenIncome] = useState<number | ''>(citizenSaved.income ?? '');
+  const [citizenCategory, setCitizenCategory] = useState<'General' | 'OBC' | 'SC' | 'ST' | 'Minority' | 'EWS' | ''>(citizenSaved.category ?? '');
+  const [familyRationType, setFamilyRationType] = useState<string>(citizenSaved.familyRationType ?? '');
+  const [housingCondition, setHousingCondition] = useState<string>(citizenSaved.housingCondition ?? '');
+  const [hasAyushmanCard, setHasAyushmanCard] = useState<boolean>(citizenSaved.hasAyushmanCard ?? false);
+  const [hasBplCard, _setHasBplCard] = useState<boolean>(citizenSaved.hasBplCard ?? false);
+  const [isDifferentlyAbled, setIsDifferentlyAbled] = useState<boolean>(citizenSaved.isDifferentlyAbled ?? false);
 
-  // User Search Query / Focus Keyword (e.g. "UP Scholarship", "Pragati", etc.)
+  // Business & MSME specific inputs
+  const [businessState, setBusinessState] = useState<string>(businessSaved.state ?? '');
+  const [businessType, setBusinessType] = useState<string>(businessSaved.businessType ?? '');
+  const [businessAge, setBusinessAge] = useState<number | ''>(businessSaved.age ?? '');
+  const [businessGender, setBusinessGender] = useState<'Male' | 'Female' | 'Transgender' | 'All' | ''>(businessSaved.gender ?? '');
+  const [loanNeed, setLoanNeed] = useState<string>(businessSaved.loanNeed ?? '');
+  const [businessTurnover, setBusinessTurnover] = useState<number | ''>(businessSaved.turnover ?? '');
+  const [businessCategory, setBusinessCategory] = useState<'General' | 'OBC' | 'SC' | 'ST' | 'Minority' | 'EWS' | ''>(businessSaved.category ?? '');
+  const [isUdyamRegistered, setIsUdyamRegistered] = useState<boolean>(businessSaved.isUdyamRegistered ?? false);
+  const [isWomenLed, setIsWomenLed] = useState<boolean>(businessSaved.isWomenLed ?? false);
+
+  // User Search Query / Focus Keyword
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  // Pipeline execution & results
+  // Pipeline execution & results (restored from storage)
+  const isCachedMatch = Boolean(
+    searchCached &&
+    searchCached.hasSearched &&
+    Array.isArray(searchCached.matchedSchemes) &&
+    searchCached.matchedSchemes.length > 0 &&
+    (initialNav.persona !== 'unselected' && (searchCached.persona === initialNav.persona || !searchCached.persona))
+  );
   const [isProcessing, setIsProcessing] = useState(false);
   const [searchStage, setSearchStage] = useState<number>(1);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [hasSearched, setHasSearched] = useState(Boolean(isCachedMatch));
   const [agentLogs, setAgentLogs] = useState<AgentLog[]>([]);
-  const [matchedSchemes, setMatchedSchemes] = useState<MatchedScheme[]>([]);
-  const [advisorNote, setAdvisorNote] = useState<string>('');
+  const [matchedSchemes, setMatchedSchemes] = useState<MatchedScheme[]>(isCachedMatch ? searchCached.matchedSchemes : []);
+  const [advisorNote, setAdvisorNote] = useState<string>(isCachedMatch ? searchCached.advisorNote || '' : '');
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('All');
   const [selectedSchemeDetail, setSelectedSchemeDetail] = useState<MatchedScheme | null>(null);
   const [lastSearchTime, setLastSearchTime] = useState<number>(0);
-  const [discoveryDiagnostics, setDiscoveryDiagnostics] = useState<any>(null);
+  const [discoveryDiagnostics, setDiscoveryDiagnostics] = useState<any>(isCachedMatch ? searchCached.discoveryDiagnostics : null);
   const [showDiagnosticsModal, setShowDiagnosticsModal] = useState<boolean>(false);
-  const [unverifiedCandidatesList, setUnverifiedCandidatesList] = useState<any[]>([]);
+  const [unverifiedCandidatesList, setUnverifiedCandidatesList] = useState<any[]>(isCachedMatch && Array.isArray(searchCached.unverifiedCandidatesList) ? searchCached.unverifiedCandidatesList : []);
 
   // Bookmarked / Saved Schemes (Persisted locally across searches)
   const [bookmarkedSchemes, setBookmarkedSchemes] = useState<MatchedScheme[]>(() => {
@@ -243,8 +292,155 @@ export function App() {
     };
   }, []);
 
+  // Synchronize URL Hash and localStorage/sessionStorage with current navigation state
+  React.useEffect(() => {
+    try {
+      if (currentView === 'auth') {
+        localStorage.setItem('ym_active_view', 'auth');
+        sessionStorage.setItem('ym_active_view', 'auth');
+        localStorage.setItem('ym_active_persona', 'unselected');
+        sessionStorage.setItem('ym_active_persona', 'unselected');
+        if (window.location.hash !== '#auth') {
+          window.history.replaceState(null, '', '#auth');
+        }
+      } else {
+        localStorage.setItem('ym_active_view', 'app');
+        sessionStorage.setItem('ym_active_view', 'app');
+        localStorage.setItem('ym_active_persona', selectedPersona);
+        sessionStorage.setItem('ym_active_persona', selectedPersona);
+        const targetHash = selectedPersona === 'unselected' ? '#home' : `#${selectedPersona}`;
+        if (window.location.hash !== targetHash) {
+          window.history.replaceState(null, '', targetHash);
+        }
+      }
+    } catch {}
+  }, [currentView, selectedPersona]);
+
+  // Support browser Back/Forward navigation with hashchange
+  React.useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace(/^#/, '').toLowerCase();
+      if (hash === 'auth' || hash === 'login' || hash === 'signup') {
+        setCurrentView('auth');
+        setSelectedPersona('unselected');
+      } else if (['student', 'farmer', 'citizen', 'business'].includes(hash)) {
+        setCurrentView('app');
+        setSelectedPersona(hash as 'student' | 'farmer' | 'citizen' | 'business');
+      } else if (hash === 'home') {
+        setCurrentView('app');
+        setSelectedPersona('unselected');
+      }
+      // If hash is empty or unrecognized, do not force reset to unselected! Keep current state.
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Persist Student form inputs
+  React.useEffect(() => {
+    try {
+      const data = JSON.stringify({
+        age: studentAge,
+        gender: studentGender,
+        state: studentState,
+        income: studentIncome,
+        category: studentCategory,
+        educationLevel,
+        courseStream,
+      });
+      localStorage.setItem('ym_form_student', data);
+      sessionStorage.setItem('ym_form_student', data);
+    } catch {}
+  }, [studentAge, studentGender, studentState, studentIncome, studentCategory, educationLevel, courseStream]);
+
+  // Persist Farmer form inputs
+  React.useEffect(() => {
+    try {
+      const data = JSON.stringify({
+        state: farmerState,
+        age: farmerAge,
+        gender: farmerGender,
+        farmerType,
+        farmerCropSeason,
+        income: farmerIncome,
+        category: farmerCategory,
+        hasKccCard,
+        hasCropInsurance,
+      });
+      localStorage.setItem('ym_form_farmer', data);
+      sessionStorage.setItem('ym_form_farmer', data);
+    } catch {}
+  }, [farmerState, farmerAge, farmerGender, farmerType, farmerCropSeason, farmerIncome, farmerCategory, hasKccCard, hasCropInsurance]);
+
+  // Persist Citizen form inputs
+  React.useEffect(() => {
+    try {
+      const data = JSON.stringify({
+        age: citizenAge,
+        gender: citizenGender,
+        state: citizenState,
+        occupation: citizenOccupation,
+        income: citizenIncome,
+        category: citizenCategory,
+        familyRationType,
+        housingCondition,
+        hasAyushmanCard,
+        hasBplCard,
+        isDifferentlyAbled,
+      });
+      localStorage.setItem('ym_form_citizen', data);
+      sessionStorage.setItem('ym_form_citizen', data);
+    } catch {}
+  }, [citizenAge, citizenGender, citizenState, citizenOccupation, citizenIncome, citizenCategory, familyRationType, housingCondition, hasAyushmanCard, hasBplCard, isDifferentlyAbled]);
+
+  // Persist Business form inputs
+  React.useEffect(() => {
+    try {
+      const data = JSON.stringify({
+        state: businessState,
+        businessType,
+        age: businessAge,
+        gender: businessGender,
+        loanNeed,
+        turnover: businessTurnover,
+        category: businessCategory,
+        isUdyamRegistered,
+        isWomenLed,
+      });
+      localStorage.setItem('ym_form_business', data);
+      sessionStorage.setItem('ym_form_business', data);
+    } catch {}
+  }, [businessState, businessType, businessAge, businessGender, loanNeed, businessTurnover, businessCategory, isUdyamRegistered, isWomenLed]);
+
+  // Persist active search results cache (DO NOT auto-remove on empty hasSearched to prevent wipeout on refresh)
+  React.useEffect(() => {
+    try {
+      if (hasSearched && selectedPersona !== 'unselected' && matchedSchemes.length > 0) {
+        const payload = JSON.stringify({
+          persona: selectedPersona,
+          hasSearched: true,
+          matchedSchemes,
+          advisorNote,
+          discoveryDiagnostics,
+          unverifiedCandidatesList,
+        });
+        localStorage.setItem('ym_search_cache', payload);
+        sessionStorage.setItem('ym_search_cache', payload);
+      }
+    } catch {}
+  }, [hasSearched, selectedPersona, matchedSchemes, advisorNote, discoveryDiagnostics, unverifiedCandidatesList]);
+
   // Clickable Logo: Navigates back home safely, resetting searches and errors
   const handleGoHome = () => {
+    try {
+      localStorage.setItem('ym_active_persona', 'unselected');
+      sessionStorage.setItem('ym_active_persona', 'unselected');
+      localStorage.setItem('ym_active_view', 'app');
+      sessionStorage.setItem('ym_active_view', 'app');
+      localStorage.removeItem('ym_search_cache');
+      sessionStorage.removeItem('ym_search_cache');
+      window.history.replaceState(null, '', '#home');
+    } catch {}
     setCurrentView('app');
     setSelectedPersona('unselected');
     setIsMobileMenuOpen(false);
@@ -299,6 +495,13 @@ export function App() {
   };
 
   const handleLogout = () => {
+    try {
+      localStorage.setItem('ym_active_persona', 'unselected');
+      sessionStorage.setItem('ym_active_persona', 'unselected');
+      localStorage.removeItem('ym_search_cache');
+      sessionStorage.removeItem('ym_search_cache');
+      window.history.replaceState(null, '', '#home');
+    } catch {}
     setCurrentUser(null);
     setSelectedPersona('unselected');
     try {
@@ -328,6 +531,14 @@ export function App() {
       setIsAuthModalOpen(true);
       return;
     }
+
+    try {
+      localStorage.setItem('ym_active_persona', persona);
+      sessionStorage.setItem('ym_active_persona', persona);
+      localStorage.removeItem('ym_search_cache');
+      sessionStorage.removeItem('ym_search_cache');
+      window.history.replaceState(null, '', `#${persona}`);
+    } catch {}
 
     setSelectedPersona(persona);
     setCurrentView('app');
@@ -651,10 +862,34 @@ export function App() {
           combinedReasons.includes('exceeds scheme limit') ||
           combinedReasons.includes('profile indicates male') ||
           combinedReasons.includes('restricted to female') ||
+          combinedReasons.includes('restricted exclusively to female') ||
           combinedReasons.includes('reserved for differently-abled') ||
-          combinedReasons.includes('standard applicant profile not eligible')
+          combinedReasons.includes('standard applicant profile not eligible') ||
+          combinedReasons.includes('reserved for sc/st/obc') ||
+          combinedReasons.includes('exclusively reserved for obc') ||
+          combinedReasons.includes('reserved for obc') ||
+          combinedReasons.includes('exclusively reserved for scheduled caste') ||
+          combinedReasons.includes('reserved for sc') ||
+          combinedReasons.includes('exclusively reserved for scheduled tribe') ||
+          combinedReasons.includes('reserved for st') ||
+          combinedReasons.includes('exclusively reserved for minority') ||
+          combinedReasons.includes('reserved for minority')
         ) {
           return false;
+        }
+
+        const schemeTitleLower = (m.scheme.name || '').toLowerCase();
+        // Category safeguard: if user selected General, reject reserved schemes
+        if (rawCategory.toLowerCase() === 'general' || rawCategory.toLowerCase().includes('unreserved')) {
+          if (/\b(for obc|for sc\b|for st\b|for minority|obc students?|sc students?|st students?)\b/i.test(schemeTitleLower)) {
+            return false;
+          }
+        }
+        // Gender safeguard: if user did not select female, reject girls-only schemes
+        if (rawGender.toLowerCase() !== 'female') {
+          if (/\b(girl students?|for girls|girls only|pragati scholarship|kanya utthan)\b/i.test(schemeTitleLower)) {
+            return false;
+          }
         }
         if (m.scheme.deadlineStatus === 'closed') return false;
         const schemeBenefit = (m.scheme.benefit || (m.scheme as any).benefits || '') as string;
@@ -692,6 +927,20 @@ export function App() {
       } else {
         setSuccessMessage(null);
       }
+
+      // Explicitly persist search cache to storage immediately
+      try {
+        const payload = JSON.stringify({
+          persona: selectedPersona,
+          hasSearched: true,
+          matchedSchemes: prioritized,
+          advisorNote: note,
+          discoveryDiagnostics,
+          unverifiedCandidatesList,
+        });
+        localStorage.setItem('ym_search_cache', payload);
+        sessionStorage.setItem('ym_search_cache', payload);
+      } catch {}
     } catch (err: any) {
       const rawErrMsg = err?.message || 'Unable to connect to live government registers. Falling back to cached verified database.';
       const errMsg = scrubSecrets(rawErrMsg);
